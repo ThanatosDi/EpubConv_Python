@@ -1,4 +1,7 @@
 # EpubConv_Python Epub簡轉繁
+
+![Travis](https://img.shields.io/github/release/Kutinging/EpubConv_Python.svg)
+
 Used python convert epub file from Simplified Chinese to Traditional Chinese on windows  
 使用 Python 撰寫，轉換epub檔案從簡體中文到繁體中文  
 # Download 下載
