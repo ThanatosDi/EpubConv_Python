@@ -7,5 +7,13 @@ Used python convert epub file from Simplified Chinese to Traditional Chinese on 
 https://github.com/Kutinging/EpubConv_Python/releases
 # Usage 使用
 直接將 epub 檔案拖曳至 epubconv.exe 上即可立即翻譯 epub 檔案
+# Update history 更新歷史
+* 1.0.2  
+  Fix bug
+  * Chinese file name can't convert.
+  * file name has blank will return error.
+* 1.0.1  
+  First version release.
+
 # Third Party Library 第三方庫
 [OpenCC](https://github.com/BYVoid/OpenCC) by BYVoid
