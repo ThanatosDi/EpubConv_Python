@@ -9,12 +9,12 @@ https://github.com/Kutinging/EpubConv_Python/releases
 直接將 epub 檔案拖曳至 epubconv.exe 上即可立即翻譯 epub 檔案
 # New version hash
 * 1.0.4
- * MD5
-  * 3997bde2919e966e7629486288d38d63
- * SHA1
-  * 34c08dfb792f509edbbf8302f738f7744836334d
- * SHA-256
-  * 82f398f232111e9da9c5bd657856b329ec038d213fd8de1dc20e0cea1fbebf0a
+  * MD5
+    * 3997bde2919e966e7629486288d38d63
+  * SHA1
+    * 34c08dfb792f509edbbf8302f738f7744836334d
+  * SHA-256
+    * 82f398f232111e9da9c5bd657856b329ec038d213fd8de1dc20e0cea1fbebf0a
 # Update history 更新歷史
 * 1.0.4
   * Fix epub file path has chinese will crash
