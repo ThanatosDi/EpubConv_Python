@@ -8,6 +8,13 @@ https://github.com/Kutinging/EpubConv_Python/releases
 # Usage 使用
 直接將 epub 檔案拖曳至 epubconv.exe 上即可立即翻譯 epub 檔案
 # New version hash 新版本hash
+* 1.0.4.1
+  * MD5
+    * 2e3f4ed5f81970001422a7cf894ce8bb
+  * SHA1
+    * 50614d7b4800c04120caa5932930cc535ee27fe7
+  * SHA-256
+    * b9c87075889e1e45b713f922e1b664205d110c48a3f71ac8d6e3ae96f880ce28
 * 1.0.4
   * MD5
     * 3997bde2919e966e7629486288d38d63
@@ -16,11 +23,13 @@ https://github.com/Kutinging/EpubConv_Python/releases
   * SHA-256
     * 82f398f232111e9da9c5bd657856b329ec038d213fd8de1dc20e0cea1fbebf0a
 # Update history 更新歷史
+* 1.0.4.1
+  * Fix folder will convert to Traditional Chinese let zip function will fall.
 * 1.0.4
-  * Fix epub file path has chinese will crash
-  * Change convert program
+  * Fix epub file path has chinese will crash.
+  * Change convert program.
 * 1.0.3.1
-  * Fix 才 will convert to 纔,now will all convert to 才
+  * Fix 才 will convert to 纔,now will all convert to 才.
 * 1.0.3
   * Simplified Chinese file name will convert failed.
   * Fix vcruntime140.dll error in windows 10 1803 version.(Cancel use upx.)

@@ -359,10 +359,13 @@ def Rename(_FileList_):
     except:
         print('  重新命名失敗')
         return False
-def FileNameS2T(_FileName_):
+
+def FileNameS2T( _FilePath_ ):
     openCC = OpenCC('s2t')
-    FileName = openCC.convert(_FileName_)
-    return FileName
+    Path = os.path.dirname( _FilePath_ )
+    FileName = openCC.convert(os.path.basename( _FilePath_ ))
+    return os.path.join(Path,FileName)
+
 def main():
     if len(__EpubFilePath__) > 1:
         for x in range(len(__EpubFilePath__)-1):
