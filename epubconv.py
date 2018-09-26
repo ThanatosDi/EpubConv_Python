@@ -1,5 +1,5 @@
 # -*- coding: utf8 -*-
-import zipfile,os,glob,sys,shutil
+import zipfile,os,glob,sys,shutil,chardet
 
 ##########################################################
 # Author: Yichen Huang (Eugene)
@@ -241,6 +241,7 @@ class StringTree:
         if self.right is not None:
             result += self.right.inorder()
         return result
+
 ###########################################
 # Author: ThanatosDi
 # GitHub: https://github.com/Kutinging
@@ -312,41 +313,28 @@ def Zip(_ZipPath_,_FileName_):
     except:
         print('Zip2epub failed.')
         return False
+
 def CleanTmp( _DirPath_ ):
     shutil.rmtree(_DirPath_)
-"""
-def Convert(_FileList_):
-    調用外部程式 opencc 進行檔案翻譯
-    try:
-        for _FileName_ in _FileList_:
-            convert_command = __OpenCCPath__ + 'opencc.exe -i "'+ _FileName_ +'" -o "'+ _FileName_ +'.new" -c '+__OpenCCPath__+'s2t.json'
-            print('  正在轉換 '+ _FileName_ + ' 檔案中')
-            Object = os.popen(convert_command)
-            Object.close()
-        for _FileName_ in _FileList_:
-            if os.path.isfile( _FileName_ +'.new'):
-                print('Success')
-                return True
-            else:
-                return False
-    except:
-        print ('  OpenCC failed.')
-        return False
-"""
+
 def Convert(_FileList_):
     openCC = OpenCC('s2t')
     try:
         for File in _FileList_:
-            FileRead = open(File,'r',encoding='UTF-8')
+            Encoding(File) #轉換編碼:將簡體中文編碼轉utf-8編碼
+            FileRead = open(File,'r',encoding='utf-8')
             FileLines = FileRead.readlines()
             FileRead.close()
             with open( File + '.new','w',encoding='UTF-8') as FileWrite:
-                print(' Convert ' + File + 'Now')
+                print(' Convert ' + File + ' Now')
                 for Line in FileLines:
                     converted = openCC.convert(Line)
                     FileWrite.write(converted)
         return True
-    except:
+    except Exception as error:
+        Error = '\n《 Convert 【' + File + '】 failed.》\n Error Messages : '+str(error)
+        print(Error)
+        Log(Error)
         return False
 
 def Rename(_FileList_):
@@ -356,8 +344,10 @@ def Rename(_FileList_):
             os.remove(_FileName_)
             os.rename(_FileName_+'.new',_FileName_)
         return True
-    except:
-        print('  重新命名失敗')
+    except Exception as error:
+        Error = '\n正在重新命名 '+ _FileName_ +'.new 到 '+ _FileName_ + '失敗'
+        print(Error)
+        Log(Error)
         return False
 
 def FileNameS2T( _FilePath_ ):
@@ -365,6 +355,33 @@ def FileNameS2T( _FilePath_ ):
     Path = os.path.dirname( _FilePath_ )
     FileName = openCC.convert(os.path.basename( _FilePath_ ))
     return os.path.join(Path,FileName)
+
+
+def Encoding(_File_):
+    try:
+        with open( _File_ , 'rb') as f:
+            encoding = (chardet.detect(f.read())['encoding']).upper()
+            print( _File_ +' encoding is '+ encoding)
+            if encoding=='GB18030' or encoding=='GBK' or encoding=='GB2312':
+                encoding = 'GB18030'
+                print('Open file use '+encoding+' encoding')
+                with open( _File_ , 'r', encoding=encoding) as FileRead:
+                    FileLines = FileRead.readlines()
+                    with open( _File_ ,'w',encoding='UTF-8') as FileWrite:
+                        print(' Convert ' + _File_ + ' encoding from '+encoding+' to UTF-8 Now')
+                        for Line in FileLines:
+                            FileWrite.write(Line)
+            elif encoding=='UTF-8':
+                print('File already UTF-8 encoding\nPass')
+                pass
+        return encoding
+    except Exception as error:
+        print(str(error))
+        return False
+        
+def Log(ErrorMessages):
+    with open( 'epubconv.log','w',encoding='UTF-8') as LogWrite:
+        LogWrite.write(ErrorMessages)
 
 def main():
     if len(__EpubFilePath__) > 1:
@@ -380,14 +397,18 @@ def main():
                         else:
                             CleanTmp(__EpubFilePath__[x+1] + '_files')
                             print(' File Convert Failed \n Maybe The File Exist')
+                            break
                     else:
                         CleanTmp(__EpubFilePath__[x+1] + '_files')
                         print('File Rename Failed')
+                        break
                 else:
                     CleanTmp(__EpubFilePath__[x+1] + '_files')
-                    print('File S2T Failed')
+                    print('File S2T Failed or filelist is none')
+                    break
             else:
-                print('Miss OpenCC Folder or Miss opencc.exe')
+                print('Miss OpenCC config or OpenCC dictionary')
+                break
     else:
         print('  請將Epub檔案直接拖曳到本程式中執行翻譯  ')
 
