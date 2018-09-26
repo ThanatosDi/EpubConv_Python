@@ -8,6 +8,13 @@ https://github.com/Kutinging/EpubConv_Python/releases
 # Usage 使用
 直接將 epub 檔案拖曳至 epubconv.exe 上即可立即翻譯 epub 檔案
 # New version hash 新版本hash
+* 1.0.4.2
+  * MD5
+    * 44d6a1c096e093ffe1defa02954c662a
+  * SHA1
+    * ce80599c4e5b50a7540ef76bc3759c94fe57cd42
+  * SHA-256
+    * c1d2666bff8eba1b67905d42778141ea5c21e1c6ec640d00d7ef62f139b644f1
 * 1.0.4.1
   * MD5
     * 2e3f4ed5f81970001422a7cf894ce8bb
@@ -23,6 +30,8 @@ https://github.com/Kutinging/EpubConv_Python/releases
   * SHA-256
     * 82f398f232111e9da9c5bd657856b329ec038d213fd8de1dc20e0cea1fbebf0a
 # Update history 更新歷史
+* 1.0.4.2
+  * Fix an error occurred when file encoding isn't utf-8.
 * 1.0.4.1
   * Fix folder will convert to Traditional Chinese let zip function will fall.
 * 1.0.4
@@ -41,7 +50,8 @@ https://github.com/Kutinging/EpubConv_Python/releases
   First version release.
 
 # Known Bugs目前已知問題
-
+* 1.0.4.2
+  * 效率低落問題
 
 # Third Party Library 第三方庫
 [OpenCC](https://github.com/BYVoid/OpenCC) by BYVoid
