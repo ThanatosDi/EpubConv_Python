@@ -252,17 +252,28 @@ __WorkPath__ = os.path.abspath(os.path.join(sys.argv[0],os.path.pardir)) #程式
 __EpubFilePath__ = sys.argv #epub檔案絕對路徑
 __OpenCCPath__ = __WorkPath__ + '\opencc\\' #opencc絕對路徑
 
-def OpenCC_Check():
-    if os.path.exists(__OpenCCPath__) and os.path.isfile( __OpenCCPath__ + 'dictionary\\STCharacters.txt' ) and os.path.isfile( __OpenCCPath__ + 'dictionary\\STPhrases.txt' ) and os.path.isfile( __OpenCCPath__ + 'config\\s2t.json' ):
-        return True
-    else:
+def OpenCCcheck():
+    try:
+        if os.path.exists(__OpenCCPath__) and os.path.isfile( __OpenCCPath__ + 'dictionary\\STCharacters.txt' ) and os.path.isfile( __OpenCCPath__ + 'dictionary\\STPhrases.txt' ) and os.path.isfile( __OpenCCPath__ + 'config\\s2t.json' ):
+            return True
+        else:
+            return False
+    except Exception as error :
+        print('\nOpenCC check error\n'+str(error))
+        Log(Error)
         return False
 
-def File_Check(_FileName_):
-    if os.path.splitext(_FileName_)[-1] == '.epub' :
-        return True
-    else:
+def Filecheck(_FileName_):
+    try:
+        if os.path.splitext(_FileName_)[-1] == '.epub' :
+            return True
+        else:
+            return False
+    except Exception as error:
+        print('\n'+_FileName_+'is not an epub file.\n'+str(error))
+        Log(Error)
         return False
+    
 
 def Unzip(_FilePath_):
     """ 將 epub 使用 zip 方式解壓縮，並取得epub中的書籍簡介、內文檔案絕對路徑"""  
@@ -278,8 +289,9 @@ def Unzip(_FilePath_):
         _FileList_ = [os.path.abspath( _UnZipPath_ + filename) for filename in zip_file.namelist() if any(filename.endswith(FileExtension) for FileExtension in ['ncx', 'opf', 'xhtml', 'html', 'htm', 'txt'])]
         zip_file.close()
         return _FileList_
-    except:
-        print('Cannot unzip file.')
+    except Exception as error:
+        print('\nCan\'t unzip file.\n'+str(error))
+        Log(Error)
         return False
 
 def Zip(_ZipPath_,_FileName_):
@@ -310,32 +322,45 @@ def Zip(_ZipPath_,_FileName_):
                 CleanTmp(_ZipPath_)
                 print('Zip2epub failed.')
                 return False
-    except:
-        print('Zip2epub failed.')
+    except Exception as error:
+        print('\nZip to epub file failed.\n'+str(error))
+        Log(Error)
         return False
 
 def CleanTmp( _DirPath_ ):
-    shutil.rmtree(_DirPath_)
+    try:
+        shutil.rmtree(_DirPath_)
+    except Exception as error:
+        print('\nClean tmp file failed.\n'+str(error))
+        Log(Error)
+        return False
 
 def Convert(_FileList_):
     openCC = OpenCC('s2t')
-    try:
-        for File in _FileList_:
-            Encoding(File) #轉換編碼:將簡體中文編碼轉utf-8編碼
-            FileRead = open(File,'r',encoding='utf-8')
-            FileLines = FileRead.readlines()
-            FileRead.close()
-            with open( File + '.new','w',encoding='UTF-8') as FileWrite:
-                print(' Convert ' + File + ' Now')
-                for Line in FileLines:
-                    converted = openCC.convert(Line)
-                    FileWrite.write(converted)
-        return True
-    except Exception as error:
-        Error = '\n《 Convert 【' + File + '】 failed.》\n Error Messages : '+str(error)
-        print(Error)
-        Log(Error)
-        return False
+    while True:
+        try:
+            for File in _FileList_:
+                FileRead = open(File,'r',encoding='utf-8')
+                FileLines = FileRead.readlines()
+                FileRead.close()
+                if os.path.isfile(File + '.new'):
+                    pass
+                else:
+                    with open( File + '.new','w',encoding='UTF-8') as FileWrite:
+                        print(' Convert ' + File + ' Now')
+                        for Line in FileLines:
+                            converted = openCC.convert(Line)
+                            FileWrite.write(converted)
+            return True
+            break
+        except Exception as error:
+            Error = '\n《 Convert 【' + File + '】 failed.》\n Error Messages : '+str(error) + '\n'
+            print(Error)
+            Log(Error)
+            if not Encoding(File)==False: #轉換編碼:將簡體中文編碼轉utf-8編碼
+                continue
+            else:
+                break
 
 def Rename(_FileList_):
     try:
@@ -377,40 +402,46 @@ def Encoding(_File_):
         return encoding
     except Exception as error:
         print(str(error))
+        Log(Error)
         return False
-        
+
 def Log(ErrorMessages):
-    with open( 'epubconv.log','w',encoding='UTF-8') as LogWrite:
+    with open( 'epubconv.log','a',encoding='UTF-8') as LogWrite:
         LogWrite.write(ErrorMessages)
 
 def main():
     if len(__EpubFilePath__) > 1:
         for x in range(len(__EpubFilePath__)-1):
-            if OpenCC_Check() and File_Check(__EpubFilePath__[x+1]):
+            if OpenCCcheck() and Filecheck(__EpubFilePath__[x+1]):
                 FileList = Unzip(__EpubFilePath__[x+1])
                 if not FileList == None and Convert(FileList):
-                    print('File S2T Success')
+                    print('\nFile S2T Success')
                     if Rename(FileList):
                         print('File Rename Success')
                         if Zip( __EpubFilePath__[x+1] + '_files' ,os.path.splitext(FileNameS2T(__EpubFilePath__[x+1]))[0]+'_tc.epub'):
                             print('File Convert Success')
                         else:
                             CleanTmp(__EpubFilePath__[x+1] + '_files')
-                            print(' File Convert Failed \n Maybe The File Exist')
+                            Log('\n File Convert Failed. Maybe The File Exist\n')
+                            print('\n File Convert Failed. Maybe The File Exist\n')
                             break
                     else:
                         CleanTmp(__EpubFilePath__[x+1] + '_files')
-                        print('File Rename Failed')
+                        Log('\n File Rename Failed\n')
+                        print('\n File Rename Failed\n')
                         break
                 else:
                     CleanTmp(__EpubFilePath__[x+1] + '_files')
-                    print('File S2T Failed or filelist is none')
+                    Log('\n File S2T Failed or filelist is empty\n')
+                    print('\n File S2T Failed or filelist is empty\n')
                     break
             else:
-                print('Miss OpenCC config or OpenCC dictionary')
+                Log('\n Miss OpenCC config or OpenCC dictionary\n')
+                print('\n Miss OpenCC config or OpenCC dictionary\n')
                 break
     else:
-        print('  請將Epub檔案直接拖曳到本程式中執行翻譯  ')
+        Log('\n 請將Epub檔案直接拖曳到本程式中執行翻譯\n')
+        print('\n 請將Epub檔案直接拖曳到本程式中執行翻譯\n')
 
 
 if __name__ == '__main__':
