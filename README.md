@@ -7,36 +7,14 @@ Used python convert epub file from Simplified Chinese to Traditional Chinese on 
 https://github.com/Kutinging/EpubConv_Python/releases
 # Usage 使用
 直接將 epub 檔案拖曳至 epubconv.exe 上即可立即翻譯 epub 檔案
-# New version hash 新版本hash
-* 1.0.4.3
-  * MD5
-    * 52f0dc5d1a3a2d317e68d1b3372afb87
-  * SHA1
-    * 971c4432f79104df7fa12b5c0db02ebf8eb06484
-  * SHA-256
-    * 3059de3421db0ce6ea8b22e6505a6369996dda9fdf75859d46069ccce151715e
-* 1.0.4.2
-  * MD5
-    * 44d6a1c096e093ffe1defa02954c662a
-  * SHA1
-    * ce80599c4e5b50a7540ef76bc3759c94fe57cd42
-  * SHA-256
-    * c1d2666bff8eba1b67905d42778141ea5c21e1c6ec640d00d7ef62f139b644f1
-* 1.0.4.1
-  * MD5
-    * 2e3f4ed5f81970001422a7cf894ce8bb
-  * SHA1
-    * 50614d7b4800c04120caa5932930cc535ee27fe7
-  * SHA-256
-    * b9c87075889e1e45b713f922e1b664205d110c48a3f71ac8d6e3ae96f880ce28
-* 1.0.4
-  * MD5
-    * 3997bde2919e966e7629486288d38d63
-  * SHA1
-    * 34c08dfb792f509edbbf8302f738f7744836334d
-  * SHA-256
-    * 82f398f232111e9da9c5bd657856b329ec038d213fd8de1dc20e0cea1fbebf0a
 # Update history 更新歷史
+* 1.0.4.4(bata)
+  * 新增橫排轉直排功能
+      * 目前該功能為測試功能，僅有橫轉直，橫直互轉還再努力中
+  * 新增 config.json 設定檔
+      * 目前該功能為測試功能，由使用者決定要簡轉繁還繁轉簡，不確定是否有BUG
+  * 新增 log 記錄功能
+      * 將會記錄轉換過程中的錯誤訊息，如發現有BUG請提供log檔及epub電子書到 epubconv@mail.kawai.moe 排除BUG
 * 1.0.4.3
   * 修正效率不佳問題
 * 1.0.4.2
