@@ -1,5 +1,5 @@
 # -*- coding: utf8 -*-
-import zipfile,os,glob,sys,shutil,chardet
+import zipfile, os, glob, sys, shutil, chardet
 
 ##########################################################
 # Author: Yichen Huang (Eugene)
@@ -113,7 +113,7 @@ class OpenCC:
 
         self._dict_chain = []
         config = self.conversion + '.json'
-        config_file = os.path.join(__WorkPath__,'opencc', CONFIG_DIR, config)
+        config_file = os.path.join( WorkPath ,'opencc', CONFIG_DIR, config)
         with open(config_file) as f:
             setting_json = json.load(f)
 
@@ -159,7 +159,7 @@ class OpenCC:
             dict_chain.append(chain)
         elif dict_dict.get('type') == 'txt':
             filename = dict_dict.get('file')
-            dict_file = os.path.join(__WorkPath__,'opencc', DICT_DIR, filename)
+            dict_file = os.path.join( WorkPath ,'opencc', DICT_DIR, filename)
             dict_chain.append(dict_file)
 
     def set_conversion(self, conversion):
@@ -248,202 +248,421 @@ class StringTree:
 # 2018,07,18
 ###########################################
 
-__WorkPath__ = os.path.abspath(os.path.join(sys.argv[0],os.path.pardir)) #程式絕對路徑
-__EpubFilePath__ = sys.argv #epub檔案絕對路徑
-__OpenCCPath__ = __WorkPath__ + '\opencc\\' #opencc絕對路徑
+WorkPath = os.path.abspath(os.path.join(sys.argv[0],os.path.pardir)) #應用程式絕對路徑
+EpubFilePath = sys.argv #epub檔案絕對路徑
+OpenccPath = WorkPath + '\opencc' #opencc絕對路徑
+OpenccConfig = {"s2t":['STPhrases.txt','STCharacters.txt'],"t2s":['TSPhrases.txt','TSCharacters.txt'],"s2tw":['STPhrases.txt','STCharacters.txt','TWVariants.txt'],"tw2s":['TSPhrases.txt','TWVariantsRevPhrases.txt','TWVariantsRev.txt','TSCharacters.txt']}
+format_mode_list = ['Horizontal','Straight']
 
-def OpenCCcheck():
-    try:
-        if os.path.exists(__OpenCCPath__) and os.path.isfile( __OpenCCPath__ + 'dictionary\\STCharacters.txt' ) and os.path.isfile( __OpenCCPath__ + 'dictionary\\STPhrases.txt' ) and os.path.isfile( __OpenCCPath__ + 'config\\s2t.json' ):
-            return True
-        else:
-            return False
-    except Exception as error :
-        print('\nOpenCC check error\n'+str(error))
-        Log(Error)
-        return False
+import time, json
 
-def Filecheck(_FileName_):
-    try:
-        if os.path.splitext(_FileName_)[-1] == '.epub' :
-            return True
-        else:
-            return False
-    except Exception as error:
-        print('\n'+_FileName_+'is not an epub file.\n'+str(error))
-        Log(Error)
-        return False
-    
+class Config_LoadFailed(Exception):
+    pass
+class Check_OpenCCNotFound(Exception):
+    pass
+class Config_ModeErrror(Exception):
+    pass
+class Config_FormatErrror(Exception):
+    pass
+class Check_FileNotEPUB(Exception):
+    pass
+class ZIP_ZipFailed(Exception):
+    pass
+class ZIP_UnzipFailed(Exception):
+    pass
+class Convert_FormatFailed(Exception):
+    pass
+class Convert_ConvertFailed(Exception):
+    pass
+class Convert_RenameFailed(Exception):
+    pass
+class Convert_FilenameFailed(Exception):
+    pass
+class Convert_encodingFailed(Exception):
+    pass
+class Convert_CleanFailed(Exception):
+    pass
 
-def Unzip(_FilePath_):
-    """ 將 epub 使用 zip 方式解壓縮，並取得epub中的書籍簡介、內文檔案絕對路徑"""  
-    try:
-        zip_file = zipfile.ZipFile( _FilePath_ )  
-        _UnZipPath_ = _FilePath_ + '_files\\'
-        if os.path.isdir( _FilePath_ + "_files"):  
-            pass  
-        else:  
-            os.mkdir( _FilePath_ + "_files")  
-        for names in zip_file.namelist():  
-            zip_file.extract(names, _FilePath_ + "_files/")
-        _FileList_ = [os.path.abspath( _UnZipPath_ + filename) for filename in zip_file.namelist() if any(filename.endswith(FileExtension) for FileExtension in ['ncx', 'opf', 'xhtml', 'html', 'htm', 'txt'])]
-        zip_file.close()
-        return _FileList_
-    except Exception as error:
-        print('\nCan\'t unzip file.\n'+str(error))
-        Log(Error)
-        return False
 
-def Zip(_ZipPath_,_FileName_):
-    """使用zip壓縮所有檔案成為epub zipepub(檔案資料夾,壓縮後的檔案名稱')  """
-    try:
-        if os.path.isfile(_FileName_):
-            pass
-        else:
-            FileList = []  
-            if os.path.isfile(_ZipPath_):  
-                FileList.append(_ZipPath_)  
-            else :  
-                for root, _dirs, files in os.walk(_ZipPath_):  
-                    for name in files:  
-                        FileList.append(os.path.join(root, name))  
-                
-            zf = zipfile.ZipFile(_FileName_, 'w', zipfile.zlib.DEFLATED)  
-            for tar in FileList:  
-                arcname = tar[len(_ZipPath_):]
-                zf.write(tar,arcname)  
-            zf.close()
-            if os.path.isfile(_FileName_):
-                print('  刪除暫存檔案')
-                CleanTmp(_ZipPath_)
-                return True
-            else:
-                print('  刪除暫存檔案')
-                CleanTmp(_ZipPath_)
-                print('Zip2epub failed.')
-                return False
-    except Exception as error:
-        print('\nZip to epub file failed.\n'+str(error))
-        Log(Error)
-        return False
-
-def CleanTmp( _DirPath_ ):
-    try:
-        shutil.rmtree(_DirPath_)
-    except Exception as error:
-        print('\nClean tmp file failed.\n'+str(error))
-        Log(Error)
-        return False
-
-def Convert(_FileList_):
-    openCC = OpenCC('s2t')
-    while True:
+class config:
+    @staticmethod
+    def load():
+        """
+        # 讀取設定檔
+        """
         try:
-            for File in _FileList_:
-                FileRead = open(File,'r',encoding='utf-8')
-                FileLines = FileRead.readlines()
-                FileRead.close()
-                if os.path.isfile(File + '.new'):
-                    pass
-                else:
-                    with open( File + '.new','w',encoding='UTF-8') as FileWrite:
-                        print(' Convert ' + File + ' Now')
-                        for Line in FileLines:
-                            converted = openCC.convert(Line)
-                            FileWrite.write(converted)
+            if not os.path.isfile(f'{WorkPath}\config.json'):
+                raise Config_LoadFailed(f'>> config.load : 缺少設定檔')
+            with open(f'{WorkPath}\config.json' , 'r',encoding='utf-8') as reader:
+                config = json.loads(reader.read())
+            if config['format'] not in format_mode_list:
+                raise Config_FormatErrror(f'>> config.load : config.json 中 format 設定錯誤，請確定 Horizontal(橫) 或 Straight(直)')
+            if config['mode'] not in OpenccConfig:
+                raise Config_ModeErrror(f'>> config.load : config.json 中 mode 設定錯誤，(簡轉繁)s2t,(繁轉簡)t2s')
+            return config
+        except Config_FormatErrror as e:
+            log.write(f'{str(e)}')
+            print(f'{str(e)}')
+            os.system("pause")
+            sys.exit(0)
+        except Config_ModeErrror as e:
+            log.write(f'{str(e)}')
+            print(f'{str(e)}')
+            os.system("pause")
+            sys.exit(0)
+        except Config_LoadFailed as e:
+            log.write(f'{str(e)}')
+            print(f'{str(e)}')
+            os.system("pause")
+            sys.exit(0)
+        except Exception as e:
+            log.write(f'>> config.load : 讀取設定檔發生錯誤 -> {str(e)}')
+            print(f'>> config.load : 讀取設定檔發生錯誤 -> {str(e)}')
+            os.system("pause")
+            sys.exit(0)
+
+class Check:
+    @staticmethod
+    def OpenCC(mode):
+        """
+        # 執行 OpenCC 確認\n
+        # Check.OpenCC(mode)
+        """
+        try:
+            for file in OpenccConfig[mode]:
+                if not os.path.isfile(f'{OpenccPath}\\dictionary\\{file}'):
+                    raise Check_OpenCCNotFound(f'>> Check.OpenCC({mode}) : 缺少翻譯檔 {file}')
+            if not os.path.isfile(f'{OpenccPath}\\config\\{mode}.json'):
+                raise Check_OpenCCNotFound(f'>> Check.OpenCC({mode}) : 缺少設定檔 {mode}.json')
             return True
-            break
-        except Exception as error:
-            Error = '\n《 Convert 【' + File + '】 failed.》\n Error Messages : '+str(error) + '\n'
-            print(Error)
-            Log(Error)
-            if not Encoding(File)==False: #轉換編碼:將簡體中文編碼轉utf-8編碼
-                continue
-            else:
-                break
+        except Check_OpenCCNotFound as e:
+            log.write(str(e))
+            print(str(e))
+            return False
+        except Exception as e:
+            log.write(f'>> Check.OpenCC : 檢查 OpenCC 時發生錯誤 -> {str(e)}')
+            print(f'>> Check.OpenCC : 檢查 OpenCC 時發生錯誤 -> {str(e)}')
+            return False
+    
+    @staticmethod
+    def File(Files):
+        """
+        # 執行檔案確認\n
+        # Check.File(Files)
+        """
+        try:
+            if not os.path.splitext(Files)[-1]=='.epub':
+                raise Check_FileNotEPUB(f'>> Check.File : {(Files)} 該檔案非EPUB格式')
+            return True
+        except Check_FileNotEPUB as e:
+            log.write(f'{str(e)}')
+            print(f'{str(e)}')
+            return False
+        except Exception as e:
+            log.write(f'>> Check.File : 發生無法處理問題 -> {str(e)}')
+            print(f'>> Check.File : 發生無法處理問題 -> {str(e)}')
+            return False
+            
 
-def Rename(_FileList_):
-    try:
-        for _FileName_ in _FileList_:
-            print('  正在重新命名 '+ _FileName_ +'.new 到 '+ _FileName_)
-            os.remove(_FileName_)
-            os.rename(_FileName_+'.new',_FileName_)
-        return True
-    except Exception as error:
-        Error = '\n正在重新命名 '+ _FileName_ +'.new 到 '+ _FileName_ + '失敗'
-        print(Error)
-        Log(Error)
-        return False
-
-def FileNameS2T( _FilePath_ ):
-    openCC = OpenCC('s2t')
-    Path = os.path.dirname( _FilePath_ )
-    FileName = openCC.convert(os.path.basename( _FilePath_ ))
-    return os.path.join(Path,FileName)
-
-
-def Encoding(_File_):
-    try:
-        with open( _File_ , 'rb') as f:
-            encoding = (chardet.detect(f.read())['encoding']).upper()
-            print( _File_ +' encoding is '+ encoding)
-            if encoding=='GB18030' or encoding=='GBK' or encoding=='GB2312':
-                encoding = 'GB18030'
-                print('Open file use '+encoding+' encoding')
-                with open( _File_ , 'r', encoding=encoding) as FileRead:
-                    FileLines = FileRead.readlines()
-                    with open( _File_ ,'w',encoding='UTF-8') as FileWrite:
-                        print(' Convert ' + _File_ + ' encoding from '+encoding+' to UTF-8 Now')
-                        for Line in FileLines:
-                            FileWrite.write(Line)
-            elif encoding=='UTF-8':
-                print('File already UTF-8 encoding\nPass')
+class ZIP:
+    @staticmethod
+    def zip(zippath,epubname):
+        """
+        # 建立壓縮檔\n
+        # ZIP.zip(zippath,epubname)\n
+        # zippath : 壓縮路徑\n
+        # epubname : 檔案名稱\n
+        """
+        try:
+            if os.path.isfile(epubname):
                 pass
-        return encoding
-    except Exception as error:
-        print(str(error))
-        Log(Error)
-        return False
+            else:
+                FileList = []  
+                if os.path.isfile(zippath):  
+                    FileList.append(zippath)  
+                else :  
+                    for root, _dirs, files in os.walk(zippath):  
+                        for name in files:  
+                            FileList.append(os.path.join(root, name))  
+                    
+                zf = zipfile.ZipFile(epubname, 'w', zipfile.zlib.DEFLATED)  
+                for tar in FileList:  
+                    arcname = tar[len(zippath):]
+                    zf.write(tar,arcname)  
+                zf.close()
+                if os.path.isfile(epubname):
+                    Convert.clean(zippath)
+                    return True
+                else:
+                    Convert.clean(zippath)
+                    return False
+        except Exception as e:
+            log.write(f'>> ZIP.zip : 壓縮發生錯誤 -> {str(e)}')
+            print(f'>> ZIP.zip : 壓縮發生錯誤 -> {str(e)}')
+            return False
+    
+    @staticmethod
+    def unzip(Epubfile):
+        """ 
+        # 將 epub 使用 zip 方式解壓縮，並取得epub中的書籍簡介、內文檔案絕對路徑\n
+        # ZIP.unzip(Epubfile)
+        """  
+        try:
+            zip_file = zipfile.ZipFile( Epubfile )  
+            unzippath = Epubfile + '_files\\'
+            if os.path.isdir( Epubfile + "_files"):  
+                pass  
+            else:  
+                os.mkdir( Epubfile + "_files")  
+            for names in zip_file.namelist():  
+                zip_file.extract(names, Epubfile + "_files/")
+            FileList = [os.path.abspath( unzippath + filename) for filename in zip_file.namelist() if any(filename.endswith(FileExtension) for FileExtension in ['ncx', 'opf', 'xhtml', 'html', 'htm', 'txt'])]
+            zip_file.close()
+            return FileList
+        except Exception as e:
+            log.write(f'>> ZIP.unzip : 解壓縮發生錯誤 -> {str(e)}')
+            print(f'>> ZIP.unzip : 解壓縮發生錯誤 -> {str(e)}')
+            return False
 
-def Log(ErrorMessages):
-    with open( 'epubconv.log','a',encoding='UTF-8') as LogWrite:
-        LogWrite.write(ErrorMessages)
+
+class Convert:
+    @staticmethod
+    def format(Epubfile,format_mode='Horizontal'):
+        """
+        # 將橫式轉換成直式\n
+        # Convert.format(Epubfile,format_mode)\n
+        # Epubfile : 檔案\n
+        # format_mode : Straight(直式),Horizontal(橫式)
+        """
+        try:
+            FileList = []
+            CSSList = []
+            CSSname = ''
+            for dirPath, dirNames, fileNames in os.walk(f'{Epubfile}_files\\'):
+                for file in fileNames:
+                    if any(file.endswith(end) for end in ['opf', 'xhtml', 'html', 'htm','css']):
+                        if not file.find('css')==-1:
+                            CSSList.append(os.path.join(dirPath, file))
+                        FileList.append(os.path.join(dirPath, file))
+
+            if format_mode == 'Straight':
+                print(f'\n>>>> 讀取設定檔 : format-->直式(Straight)\n')
+                if not CSSList[0].find('css')==-1 and os.path.isfile(CSSList[0]):
+                    CSSname = CSSList[0]
+                    #讀取 css 檔案，並抓取出 html{ 起始行
+                    with open(CSSList[0],'r+',encoding='utf-8') as css:
+                        linecount = 0
+                        lineslist = []
+                        start = None
+                        for line in css:
+                            lineslist.append(line)
+                            linecount += 1
+                            if re.findall(r'html(?:.*){',line):
+                                start = linecount
+                    lines = open(CSSList[0],'r+',encoding='utf-8').read()
+                    #判斷是否有無直式css 如果沒有插入後建立檔案
+                    if start is None:
+                        print(f'>>>> 未發現 {os.path.basename(CSSname)} 中有html標籤\n------>新增直式CSS到 {os.path.basename(CSSname)} 中\n')
+                        lineslist.insert(0,'html{\n\twriting-mode: vertical-rl;\n\t-webkit-writing-mode: vertical-rl;\n\t-epub-writing-mode: vertical-rl;\n}\n')
+                        with open(CSSList[0],'w+',encoding='utf-8') as css:
+                                css.writelines(lineslist)
+                    else:
+                        print(f'>>>> 發現 {os.path.basename(CSSname)} 中有html標籤\n------>新增直式CSS到 {os.path.basename(CSSname)} 中\n')
+                        if not any(re.findall(r'.*writing-mode(?:\:|.*\:).*',lines)):
+                            lineslist.insert(start,'\twriting-mode: vertical-rl;\n\t-webkit-writing-mode: vertical-rl;\n\t-epub-writing-mode: vertical-rl;\n')
+                            with open(CSSList[0],'w+',encoding='utf-8') as css:
+                                css.writelines(lineslist)
+
+
+                for File in FileList:
+                    print(f'>>>> 正在轉換 {os.path.basename(File)} 格式為直式')
+                    if not File.find('content.opf')==-1:
+                        modify = open(File,encoding='utf-8').read().replace('<spine toc="ncx">', '<spine toc="ncx" page-progression-direction="rtl">')
+                        open(File,'w',encoding='utf-8').write(modify)
+                    
+                    
+                    if any(File.find(end) for end in ['xhtml', 'html', 'htm']):
+                        regex = re.compile(r".*<\/head>.*", re.IGNORECASE)
+                        lines = open(File,encoding='utf-8').read()
+                        if not any(re.findall(r'link href=\"[\S]*.css\"',lines)):
+                            m = re.findall(regex,lines)
+                            if os.path.dirname(CSSname)==os.path.dirname(File):
+                                CSSpath = CSSname.replace(f'{Epubfile}_files','.')
+                            else:
+                                CSSpath = f'../Styles/{os.path.basename(CSSname)}'
+                            modify = re.sub(regex,f'\t<link href="{(CSSpath)}" rel="stylesheet" type="text/css"/>\n</head>',lines)
+                            open(File,'w',encoding='utf-8').write(modify)
+            if format_mode == 'Horizontal':
+                print(f'>> 讀取設定檔 : format-->橫式(Horizontal)')
+                if not CSSList[0].find('.css')==-1 and os.path.isfile(CSSList[0]):
+                    with open(CSSList[0],'r+',encoding='utf-8') as css:
+                        linecount = 0
+                        lineslist = []
+                        start = None
+                        for line in css:
+                            lineslist.append(line)
+                            linecount += 1
+                            if re.findall(r'html(?:.*){',line):
+                                start = linecount
+                    lines = open(CSSList[0],'r+',encoding='utf-8').read()
+                    if start is not None:
+                        if any(re.findall(r'.*writing-mode(?:\:|.*\:).*',lines)):
+                            print(f'>>>> 發現 {os.path.basename(CSSname)} 中有html標籤\n------>刪除直式CSS中\n')
+                            open(CSSList[0],'w',encoding='utf-8').write(re.sub(r'.*writing-mode(?:\:|.*\:).*','',lines))
+                for File in FileList:
+                    print(f'>>>> 正在轉換 {os.path.basename(File)} 格式為橫式')
+                    if not File.find('content.opf')==-1:
+                        modify = open(File,encoding='utf-8').read().replace('<spine toc="ncx" page-progression-direction="rtl">','<spine toc="ncx">')
+                        open(File,'w',encoding='utf-8').write(modify)
+            return True
+        except Exception as e:
+            log.write(f'Convert.format : 格式轉換發生錯誤 -> {str(e)}')
+            print(f'Convert.format : 格式轉換發生錯誤 -> {str(e)}')
+            return False
+
+    @staticmethod
+    def convert(mode,FileList):
+        """
+        # 翻譯檔案\n
+        # Convert.convert(mode,FileList)
+        """
+        openCC = OpenCC(mode)
+        while True:
+            try:
+                for File in FileList:
+                    if os.path.basename(File)=='content.opf':
+                        regex = re.compile(r"<dc:language>[\S]*</dc:language>", re.IGNORECASE)
+                        fileline = open(File,encoding='utf-8').read()
+                        m = re.findall(regex,fileline)
+                        if mode=='s2t' or mode=='s2tw':
+                            modify = re.sub(regex,f'<dc:language>zh-TW</dc:language>',fileline)
+                        if mode=='t2s' or mode=='tw2s':
+                            modify = re.sub(regex,f'<dc:language>zh-CN</dc:language>',fileline)
+                        open(File,'w',encoding='utf-8').write(modify)
+                    with open(File,'r',encoding='utf-8') as FileRead:
+                        FileLines = FileRead.readlines()
+                    if os.path.isfile(File + '.new'):
+                        pass
+                    else:
+                        with open( File + '.new','w',encoding='UTF-8') as FileWrite:
+                            print(f'>>>> 正在翻譯 {os.path.basename(File)} 中')
+                            for Line in FileLines:
+                                converted = openCC.convert(Line)
+                                FileWrite.write(converted)
+                return True
+                break
+            except Exception as e:
+                print(f'>> Convert.convert : 轉換發生錯誤 -> {str(e)}')
+                log.write(f'>> Convert.convert : 轉換發生錯誤 -> {str(e)}')
+                if not Convert.encoding(File)==False: #轉換編碼:將簡體中文編碼轉utf-8編碼
+                    continue
+                else:
+                    break
+
+    @staticmethod
+    def Rename(FileList):
+        """
+        # 重新命名檔案\n
+        # Convert.Rename(FileList)
+        """
+        try:
+            for FileName in FileList:
+                print(f'>>>> 重新命名 {os.path.basename(FileName)}.new 到 {os.path.basename(FileName)}')
+                os.remove(FileName)
+                os.rename(FileName+'.new',FileName)
+            return True
+        except Exception as e:
+            log.write(f'>> Convert.Rename : {str(e)}')
+            print(f'>> Convert.Rename : 重新命名 {FileName}.new 發生錯誤')
+            return False
+
+    @staticmethod
+    def FileName(mode,FilePath):
+        """
+        # 翻譯檔案名稱\n
+        # Convert.FileName(mode,FilePath)
+        """
+        openCC = OpenCC(mode)
+        Path = os.path.dirname( FilePath )
+        FileName = openCC.convert(os.path.basename( FilePath ))
+        return os.path.join(Path,FileName)
+
+    @staticmethod
+    def encoding(File):
+        """
+        # 當檔案並非 UTF8格式時轉換成UTF8\n
+        # Convert.encoding(File)
+        """
+        try:
+            with open( File , 'rb') as f:
+                encoding = (chardet.detect(f.read())['encoding']).upper()
+                print( File +' encoding is '+ encoding)
+                if encoding=='GB18030' or encoding=='GBK' or encoding=='GB2312':
+                    encoding = 'GB18030'
+                    print(f'>>>> 使用 {encoding} 開啟檔案')
+                    with open( File , 'r', encoding=encoding) as FileRead:
+                        FileLines = FileRead.readlines()
+                        with open( File ,'w',encoding='UTF-8') as FileWrite:
+                            print(f'>>>> 轉換 {File} 編碼從 {encoding} 到 UTF-8 ')
+                            for Line in FileLines:
+                                FileWrite.write(Line)
+                elif encoding=='UTF-8':
+                    print('檔案已經是 UTF-8 編碼\n跳過')
+                    pass
+            return encoding
+        except Exception as e:
+            log.write(f'>> Convert.encoding : {str(e)}')
+            print(f'>> Convert.encoding : {os.path.basename(File)} 編碼轉換發生錯誤')
+            return False
+
+    @staticmethod
+    def clean(DirPath):
+        """
+        # 刪除暫存檔\n
+        # Convert.clean(DirPath)
+        """
+        try:
+            if os.path.isdir( DirPath ):
+                shutil.rmtree( DirPath )
+        except Exception as e:
+            log.write(f'>> Convert.clean : {str(e)}')
+            print(f'>> Convert.clean : 刪除暫存檔發生錯誤')
+            return False
+class log:
+    @staticmethod
+    def _get_time():
+        """
+        # 取得系統當下時間
+        """
+        return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) 
+
+    @staticmethod
+    def write(message):
+        """
+        # log 資料寫入
+        """
+        with open( f'{WorkPath}/epubconv.log','a',encoding='UTF-8') as logfile:
+            logfile.write(log._get_time()+' '+message+'\n')
 
 def main():
-    if len(__EpubFilePath__) > 1:
-        for x in range(len(__EpubFilePath__)-1):
-            if OpenCCcheck() and Filecheck(__EpubFilePath__[x+1]):
-                FileList = Unzip(__EpubFilePath__[x+1])
-                if not FileList == None and Convert(FileList):
-                    print('\nFile S2T Success')
-                    if Rename(FileList):
-                        print('File Rename Success')
-                        if Zip( __EpubFilePath__[x+1] + '_files' ,os.path.splitext(FileNameS2T(__EpubFilePath__[x+1]))[0]+'_tc.epub'):
-                            print('File Convert Success')
-                        else:
-                            CleanTmp(__EpubFilePath__[x+1] + '_files')
-                            Log('\n File Convert Failed. Maybe The File Exist\n')
-                            print('\n File Convert Failed. Maybe The File Exist\n')
-                            break
-                    else:
-                        CleanTmp(__EpubFilePath__[x+1] + '_files')
-                        Log('\n File Rename Failed\n')
-                        print('\n File Rename Failed\n')
-                        break
-                else:
-                    CleanTmp(__EpubFilePath__[x+1] + '_files')
-                    Log('\n File S2T Failed or filelist is empty\n')
-                    print('\n File S2T Failed or filelist is empty\n')
-                    break
-            else:
-                Log('\n Miss OpenCC config or OpenCC dictionary\n')
-                print('\n Miss OpenCC config or OpenCC dictionary\n')
-                break
-    else:
-        Log('\n 請將Epub檔案直接拖曳到本程式中執行翻譯\n')
-        print('\n 請將Epub檔案直接拖曳到本程式中執行翻譯\n')
-
-
+    try:
+        setting = config.load()
+        if len(EpubFilePath) > 1:
+            for index in range(len(EpubFilePath)-1):
+                if Check.OpenCC(setting['mode']) and Check.File(EpubFilePath[index+1]):
+                    FileList = ZIP.unzip(EpubFilePath[index+1])
+                    if not FileList == None:
+                        if Convert.convert(setting['mode'],FileList):
+                            if Convert.Rename(FileList):
+                                if Convert.format(EpubFilePath[index+1],format_mode=setting['format']):
+                                    ZIP.zip(f'{EpubFilePath[index+1]}_files',os.path.splitext(Convert.FileName(setting['mode'],EpubFilePath[index+1]))[0]+'_tc.epub')
+                Convert.clean(f'{EpubFilePath[index+1]}_files')
+        else:
+            print('\n>> 請將Epub檔案直接拖曳到本程式中執行翻譯\n')
+    except Exception as e:
+        log.write(f'發生錯誤 : {str(e)}')
+        print(f'發生錯誤 : {str(e)}')
+        os.system("pause")
 if __name__ == '__main__':
     main()
     os.system("pause")
