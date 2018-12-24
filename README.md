@@ -8,6 +8,7 @@ https://github.com/Kutinging/EpubConv_Python/releases
 # Usage 使用
 直接將 epub 檔案拖曳至 epubconv.exe 上即可立即翻譯 epub 檔案
 # Update history 更新歷史
+* 1.0.5.
 * 1.0.5.1
   - 修正橫直互轉功能異常
     -  各個epub檔案內容格式不同導致錯誤之修正
