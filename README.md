@@ -8,7 +8,8 @@ https://github.com/Kutinging/EpubConv_Python/releases
 # Usage 使用
 直接將 epub 檔案拖曳至 epubconv.exe 上即可立即翻譯 epub 檔案
 # Update history 更新歷史
-* 1.0.5.
+* 1.0.5.2
+  - 修正無 css 檔案時造成程式拋出例外 List index out of range. 錯誤
 * 1.0.5.1
   - 修正橫直互轉功能異常
     -  各個epub檔案內容格式不同導致錯誤之修正
@@ -47,7 +48,7 @@ https://github.com/Kutinging/EpubConv_Python/releases
 
 # Known Bugs目前已知問題
 * 1.0.5.1
-  * 無 css 檔案時造成程式拋出例外 List index out of range.
+  * 無 css 檔案時造成程式拋出例外 List index out of range.(1.0.5.2已修復)
 * 1.0.4.2
   * 效率低落問題(1.0.4.3已修復)
 
