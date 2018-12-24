@@ -45,6 +45,8 @@ https://github.com/Kutinging/EpubConv_Python/releases
   First version release.
 
 # Known Bugs目前已知問題
+* 1.0.5.1
+  * 無 css 檔案時造成程式拋出例外 List index out of range.
 * 1.0.4.2
   * 效率低落問題(1.0.4.3已修復)
 
