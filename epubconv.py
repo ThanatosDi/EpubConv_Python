@@ -444,10 +444,11 @@ class Convert:
                         if not file.find('css')==-1:
                             CSSList.append(os.path.join(dirPath, file))
                         FileList.append(os.path.join(dirPath, file))
-
+                        
             if format_mode == 'Straight':
                 print(f'\n>>>> 讀取設定檔 : format-->直式(Straight)\n')
-                if not CSSList[0].find('css')==-1 and os.path.isfile(CSSList[0]):
+                #if not CSSList[0].find('css')==-1 and os.path.isfile(CSSList[0]):
+                if any(CSSList): #判斷是否有 .css檔案
                     CSSname = CSSList[0]
                     #讀取 css 檔案，並抓取出 html{ 起始行
                     with open(CSSList[0],'r+',encoding='utf-8') as css:
@@ -472,7 +473,15 @@ class Convert:
                             lineslist.insert(start,'\twriting-mode: vertical-rl;\n\t-webkit-writing-mode: vertical-rl;\n\t-epub-writing-mode: vertical-rl;\n')
                             with open(CSSList[0],'w+',encoding='utf-8') as css:
                                 css.writelines(lineslist)
-
+                else:
+                    print(f'>>>> 未發現該 epub 中有 .css 檔')
+                    if not os.path.isdir(f'{Epubfile}_files/OEBPS'):
+                        os.mkdir(f'{Epubfile}_files/OEBPS')
+                    if not os.path.isdir(f'{Epubfile}_files/OEBPS/Styles'):
+                        os.mkdir(f'{Epubfile}_files/OEBPS/Styles')
+                    with open(f'{Epubfile}_files/OEBPS/Styles/style.css', 'a', encoding='utf-8') as cssfile:
+                        cssfile.write('html{\n\twriting-mode: vertical-rl;\n\t-webkit-writing-mode: vertical-rl;\n\t-epub-writing-mode: vertical-rl;\n}\n')
+                    CSSname = 'style.css'
 
                 for File in FileList:
                     print(f'>>>> 正在轉換 {os.path.basename(File)} 格式為直式')
@@ -492,9 +501,11 @@ class Convert:
                                 CSSpath = f'../Styles/{os.path.basename(CSSname)}'
                             modify = re.sub(regex,f'\t<link href="{(CSSpath)}" rel="stylesheet" type="text/css"/>\n</head>',lines)
                             open(File,'w',encoding='utf-8').write(modify)
+
             if format_mode == 'Horizontal':
                 print(f'>> 讀取設定檔 : format-->橫式(Horizontal)')
-                if not CSSList[0].find('.css')==-1 and os.path.isfile(CSSList[0]):
+                #if not CSSList[0].find('.css')==-1 and os.path.isfile(CSSList[0]):
+                if any(CSSList): #判斷是否有 .css檔案
                     with open(CSSList[0],'r+',encoding='utf-8') as css:
                         linecount = 0
                         lineslist = []
@@ -509,11 +520,15 @@ class Convert:
                         if any(re.findall(r'.*writing-mode(?:\:|.*\:).*',lines)):
                             print(f'>>>> 發現 {os.path.basename(CSSname)} 中有html標籤\n------>刪除直式CSS中\n')
                             open(CSSList[0],'w',encoding='utf-8').write(re.sub(r'.*writing-mode(?:\:|.*\:).*','',lines))
+                else:
+                    print(f'>>>> 未發現該 epub 中有 .css 檔')
+                    pass
                 for File in FileList:
                     print(f'>>>> 正在轉換 {os.path.basename(File)} 格式為橫式')
                     if not File.find('content.opf')==-1:
                         modify = open(File,encoding='utf-8').read().replace('<spine toc="ncx" page-progression-direction="rtl">','<spine toc="ncx">')
                         open(File,'w',encoding='utf-8').write(modify)
+                
             return True
         except Exception as e:
             log.write(f'Convert.format : 格式轉換發生錯誤 -> {str(e)}')
@@ -656,7 +671,7 @@ def main():
                             if Convert.Rename(FileList):
                                 if Convert.format(EpubFilePath[index+1],format_mode=setting['format']):
                                     ZIP.zip(f'{EpubFilePath[index+1]}_files',os.path.splitext(Convert.FileName(setting['mode'],EpubFilePath[index+1]))[0]+'_tc.epub')
-                Convert.clean(f'{EpubFilePath[index+1]}_files')
+                #Convert.clean(f'{EpubFilePath[index+1]}_files')
         else:
             print('\n>> 請將Epub檔案直接拖曳到本程式中執行翻譯\n')
     except Exception as e:
