@@ -1,4 +1,4 @@
-# EpubConv_Python Epub簡轉繁
+# EpubConv_Python Epub簡繁橫直互轉
 [![GitHub release](https://img.shields.io/github/release/Kutinging/EpubConv_Python.svg?style=plastic)](https://github.com/Kutinging/EpubConv_Python/releases)  
   
 Used python convert epub file from Simplified Chinese to Traditional Chinese on windows  
@@ -8,6 +8,12 @@ https://github.com/Kutinging/EpubConv_Python/releases
 # Usage 使用
 直接將 epub 檔案拖曳至 epubconv.exe 上即可立即翻譯 epub 檔案
 # Update history 更新歷史
+* 1.0.5.
+* 1.0.5.1
+  - 修正橫直互轉功能異常
+    -  各個epub檔案內容格式不同導致錯誤之修正
+  - 修正 log 檔儲存位置錯誤
+    -  1.0.5版本為epub檔案所在處新增log檔修正為本程式所在位置新增log檔
 * 1.0.5(bata)
   * 新增橫直排互轉功能
     *  目前該功能為測試功能，目前為橫直互轉
@@ -40,6 +46,8 @@ https://github.com/Kutinging/EpubConv_Python/releases
   First version release.
 
 # Known Bugs目前已知問題
+* 1.0.5.1
+  * 無 css 檔案時造成程式拋出例外 List index out of range.
 * 1.0.4.2
   * 效率低落問題(1.0.4.3已修復)
 
