@@ -1,0 +1,35 @@
+{
+    "//_engine_comment": {
+        "engine": {
+            "//": "轉換時所使用的方法，分為 OpenCC(開放中文轉換) 與 zhconvert(繁化姬)",
+            "opencc": "使用OpenCC進行轉換，不需要網路",
+            "zhconvert": "使用繁化姬API進行轉換，網路為必須"
+        }
+    },
+    "//_converter_comment": {
+        "opencc": {
+            "//": "OpenCC 轉換時使用的模式 ※有區分大小寫",
+            "s2t": "簡轉繁",
+            "t2s": "繁轉簡",
+            "s2tw": "簡體字轉台灣用字",
+            "tw2s": "台灣用字轉簡體字"
+        },
+        "zhconvert": {
+            "//": "繁化姬轉換時使用的模式 ※有區分大小寫",
+            "Simplified": "簡體化",
+            "Traditional": "繁體化",
+            "China": "中國化",
+            "Taiwan": "台灣化",
+            "WikiSimplified": "維基簡體化",
+            "WikiTraditional": "維基繁體化"
+        }
+    },
+    "//_format_comment": {
+        "//":"內文格式轉換",
+        "Straight": "文字格式轉為直式",
+        "Horizontal": "文字格式轉為橫式"
+    },
+    "engine": "opencc",
+    "converter": "s2t",
+    "format": "Horizontal"
+}

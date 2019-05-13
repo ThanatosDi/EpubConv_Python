@@ -1,0 +1,24 @@
+{
+    "engine": [
+        "opencc",
+        "zhconvert"
+    ],
+    "opencc": {
+        "converter": [
+            "s2t",
+            "t2s",
+            "s2tw",
+            "tw2s"
+        ]
+    },
+    "zhconvert": {
+        "converter": [
+            "Simplified",
+            "Traditional",
+            "China",
+            "Taiwan",
+            "WikiSimplified",
+            "WikiTraditional"
+        ]
+    }
+}
