@@ -10,6 +10,7 @@ from modules.console import Console
 from modules.utils.error import FileTypeError, FileUnzipError, ConfigError
 from modules.logger import Logger
 from modules.opencc import OpenCC
+from modules.utils.tools import get_key
 
 
 class EPUB:
@@ -77,17 +78,33 @@ class EPUB:
             if self.convert_list:
                 self.logger.info(
                     'convert', f'unzip file "{file}" success and get convert file list')
-                self._convert_text(self.convert_list)
+                self.convert_text(self.convert_list)
+                self.rename(self.convert_list)
         except Exception as e:
             self.logger.error('convert', f'{str(e)}')
+            os.system('pause')
 
-    def rename(self):
-        """  """
+    def rename(self, convert_list):
+        """重新命名已轉換的檔案
+        """
+        for f in convert_list:
+            self.logger.debug('rename', f'delete file "{os.path.basename(f)}"')
+            os.remove(f)
+            self.logger.debug('rename', f'rename "{os.path.basename(f)}"')
+            os.rename(f'{f}.new', f)
 
-    def _filename(self):
-        """  """
+    def _filename(self, file):
+        """ 轉換 epub 檔案名稱非內文文檔 """
+        converter_dict = {
+            "s2t": ["s2t", "s2tw", "Traditional", "Taiwan", "WikiTraditional"],
+            "t2s": ["t2s", "tw2s", "Simplified", "China", "WikiSimplified"]
+        }
+        converter = get_key(converter_dict, self.config['converter'])
+        openCC = OpenCC(converter)
+        newfilename = openCC.convert(os.path.basename(file))
+        return os.path.join(os.path.dirname, newfilename)
 
-    def _convert_text(self, convert_list):
+    def convert_text(self, convert_list):
         """內文文字轉換作業
 
         engine -- 轉換文字所使用的引擎
@@ -118,14 +135,14 @@ class EPUB:
             raise ConfigError('Format is not a right format in "config.json"')
         # 判斷轉換引擎並轉換
         if self.config['engine'].lower() == 'opencc':
-            self.logger.debug('_convert_text', 'engine: opencc')
+            self.logger.debug('convert_text', 'engine: opencc')
             for f in convert_list:
                 self.logger.debug(
-                    '_convert_text', f'now convert "{os.path.basename(f)}"')
+                    'convert_text', f'now convert "{os.path.basename(f)}"')
                 self._content_lang(f)
                 self._opencc(self.config['converter'], f)
         if self.config['engine'].lower() == 'zhconvert':
-            self.logger.debug('_convert_text', 'engine: zhconvert 繁化姬')
+            self.logger.debug('convert_text', 'engine: zhconvert 繁化姬')
             for f in convert_list:
                 self._content_lang(f)
 
@@ -160,11 +177,12 @@ class EPUB:
             regex = re.compile(
                 r"<dc:language>[\S]*</dc:language>", re.IGNORECASE)
             fileline = open(file, encoding='utf-8').read()
-            #m = re.findall(regex, fileline)
             if self.config['converter'] in converter["zh-TW"]:
+                self.logger.info('_content_lang', 'convert language to zh-TW')
                 modify = re.sub(
                     regex, f'<dc:language>zh-TW</dc:language>', fileline)
             if self.config['converter'] in converter["zh-CN"]:
+                self.logger.info('_content_lang', 'convert language to zh-CN')
                 modify = re.sub(
                     regex, f'<dc:language>zh-CN</dc:language>', fileline)
             open(file, 'w', encoding='utf-8').write(modify)
@@ -192,5 +210,6 @@ class EPUB:
 
 if __name__ == "__main__":
     epub = EPUB()
-    epub.convert('H:/VSCode/Python/epubconv/1.epub')
+    # epub.convert('1.epub')
+    epub._filename('C:/Users/ThanatosDi/Desktop/Github/EpubConv_Python/1.epub')
     pass
