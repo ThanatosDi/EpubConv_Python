@@ -13,19 +13,28 @@ from modules.opencc import OpenCC
 from modules.utils.tools import get_key
 
 
-class EPUB:
-    """ EPUB
+class EPubConv:
+    """ Electronic Publication Convert(EPubConv)
     """
 
     def __init__(self):
-        """
+        """init
+
+        Objects:
+            logger -- log記錄檔物件
+            workpath -- 本程式所在的絕對路徑
+            config -- 讀取本程式路徑底下的 config.json 設定檔內容
+            convert_list -- 執行 unzip 方法後取得 EPub 中需要轉換的檔案之絕對路徑清單(list)
+            new_filename -- 轉換後的 EPub 檔案的檔案名稱
+
         """
         self.logger = Logger(name='EPUB')
         self.workpath = os.path.abspath(
             os.path.join(sys.argv[0], os.path.pardir))
-        self.config = None
+        self.config = self._read_config(f'{self.workpath}/config.json')
         self.convert_list = None
-        self._read_config(f'{self.workpath}/config.json')
+        self.new_filename = None
+        
 
     def _read_config(self, config):
         """讀取設定檔
@@ -36,10 +45,10 @@ class EPUB:
         if os.path.exists(config):
             self.logger.info('_read_config', 'read config')
             with open(config, 'r', encoding='utf-8') as r_c:
-                self.config = json.loads(r_c.read())
+                config = json.loads(r_c.read())
             self.logger.info(
                 '_read_config', f"Aleady read config\nengine: {self.config['engine']}\nconverter: {self.config['converter']}\nformat: {self.config['format']}")
-            return self.config
+            return config
         else:
             print('error')
 
@@ -102,7 +111,7 @@ class EPUB:
         converter = get_key(converter_dict, self.config['converter'])
         openCC = OpenCC(converter)
         newfilename = openCC.convert(os.path.basename(file))
-        return os.path.join(os.path.dirname, newfilename)
+        self.new_filename = os.path.join(os.path.dirname, newfilename)
 
     def convert_text(self, convert_list):
         """內文文字轉換作業
@@ -164,7 +173,7 @@ class EPUB:
         """  """
 
     def _content_lang(self, file):
-        """修改 content.opf 中語言標籤內容
+        """修改 content.opf 中語言標籤的值
 
         Arguments:
             file {str} -- 欲進行文字轉換的內文文檔的絕對路徑
@@ -209,7 +218,7 @@ class EPUB:
 
 
 if __name__ == "__main__":
-    epub = EPUB()
+    epub = EPubConv()
     # epub.convert('1.epub')
     epub._filename('C:/Users/ThanatosDi/Desktop/Github/EpubConv_Python/1.epub')
     pass
