@@ -23,6 +23,16 @@ class GoogleTranslate:
         return self.__response.replace(']', '').replace('[', '').replace("\"", '').split(',')
 
     @property
+    def toDict(self):
+        t = self.toList
+        d = {
+            "sourcelang": t[1],
+            "targetlang": t[0],
+            "unknow": t[2:]
+        }
+        return d
+
+    @property
     def response(self):
         """Return response data
         """
