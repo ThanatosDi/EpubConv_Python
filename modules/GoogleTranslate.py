@@ -1,3 +1,4 @@
+# Google 翻譯模組
 import requests
 
 
@@ -24,6 +25,8 @@ class GoogleTranslate:
 
     @property
     def toDict(self):
+        """Return data value from str to dict
+        """
         t = self.toList
         d = {
             "sourcelang": t[1],

@@ -24,7 +24,7 @@ class EPubConv:
             logger -- log記錄檔物件
             workpath -- 本程式所在的絕對路徑
             config -- 讀取本程式路徑底下的 config.json 設定檔內容
-            convert_list -- 執行 unzip 方法後取得 EPub 中需要轉換的檔案之絕對路徑清單(list)
+            convert_file_list -- 執行 unzip 方法後取得 EPub 中需要轉換的檔案之絕對路徑清單(list)
             new_filename -- 轉換後的 EPub 檔案的檔案名稱
 
         """
@@ -32,9 +32,8 @@ class EPubConv:
         self.workpath = os.path.abspath(
             os.path.join(sys.argv[0], os.path.pardir))
         self.config = self._read_config(f'{self.workpath}/config.json')
-        self.convert_list = None
-        self.new_filename = None
-        
+        self.convert_file_list = None
+        self.filename = None
 
     def _read_config(self, config):
         """讀取設定檔
@@ -52,10 +51,33 @@ class EPubConv:
         else:
             print('error')
 
-    def zip(self):
+    def _zip(self):
         """  """
+        self._filename
+        if os.path.isfile(self.filename):
+            pass
+        else:
+            FileList = []  
+            if os.path.isfile(zippath):  
+                FileList.append(zippath)  
+            else :  
+                for root, _dirs, files in os.walk(zippath):  
+                    for name in files:  
+                        FileList.append(os.path.join(root, name))  
+                    
+            zf = zipfile.ZipFile(epubname, 'w', zipfile.zlib.DEFLATED)  
+            for tar in FileList:  
+                arcname = tar[len(zippath):]
+                zf.write(tar,arcname)  
+            zf.close()
+            if os.path.isfile(epubname):
+                Convert.clean(zippath)
+                return True
+            else:
+                Convert.clean(zippath)
+                return False
 
-    def unzip(self, file_path):
+    def _unzip(self, file_path):
         """ 解壓縮 epub 檔案 """
         zip_file = zipfile.ZipFile(file_path)
         extract_path = file_path + '_files/'
@@ -65,14 +87,14 @@ class EPubConv:
             os.mkdir(extract_path)
         for names in zip_file.namelist():
             zip_file.extract(names, extract_path)
-        self.convert_list = [os.path.abspath(extract_path + filename) for filename in zip_file.namelist() if any(
+        self.convert_file_list = [os.path.abspath(extract_path + filename) for filename in zip_file.namelist() if any(
             filename.endswith(FileExtension) for FileExtension in ['ncx', 'opf', 'xhtml', 'html', 'htm', 'txt'])]
-        if not self.convert_list:
+        if not self.convert_file_list:
             raise FileUnzipError(
                 f'unzip "{os.path.basename(file_path)}" failed or epub file is None')
         zip_file.close()
 
-    def convert(self, file):
+    def convert(self, epub_file_path):
         """ epub 轉換作業
 
         Arguments:
@@ -82,27 +104,30 @@ class EPubConv:
             FileTypeError: 檔案格式不符例外處理
         """
         try:
-            self._check(file)
-            self.unzip(file)
-            if self.convert_list:
+            self.filename = epub_file_path
+            self._check(epub_file_path)
+            self._unzip(epub_file_path)
+            if self.convert_file_list:
                 self.logger.info(
-                    'convert', f'unzip file "{file}" success and get convert file list')
-                self.convert_text(self.convert_list)
-                self.rename(self.convert_list)
+                    'convert', f'unzip file "{epub_file_path}" success and get convert file list')
+                self._convert_content(self.convert_file_list)
+                self._rename(self.convert_file_list)
+                #self._zip
+                #self._clean
         except Exception as e:
             self.logger.error('convert', f'{str(e)}')
             os.system('pause')
 
-    def rename(self, convert_list):
+    def _rename(self, convert_file_list):
         """重新命名已轉換的檔案
         """
-        for f in convert_list:
+        for f in convert_file_list:
             self.logger.debug('rename', f'delete file "{os.path.basename(f)}"')
             os.remove(f)
             self.logger.debug('rename', f'rename "{os.path.basename(f)}"')
             os.rename(f'{f}.new', f)
 
-    def _filename(self, file):
+    def _filename(self):
         """ 轉換 epub 檔案名稱非內文文檔 """
         converter_dict = {
             "s2t": ["s2t", "s2tw", "Traditional", "Taiwan", "WikiTraditional"],
@@ -110,10 +135,10 @@ class EPubConv:
         }
         converter = get_key(converter_dict, self.config['converter'])
         openCC = OpenCC(converter)
-        newfilename = openCC.convert(os.path.basename(file))
-        self.new_filename = os.path.join(os.path.dirname, newfilename)
+        new_filename = openCC.convert(os.path.basename(self.filename))
+        self.filename = os.path.join(os.path.dirname(self.filename), new_filename)
 
-    def convert_text(self, convert_list):
+    def _convert_content(self, convert_file_list):
         """內文文字轉換作業
 
         engine -- 轉換文字所使用的引擎
@@ -124,7 +149,7 @@ class EPubConv:
                 Taiwan, WikiSimplified, WikiTraditional]
 
         Arguments:
-            convert_list {list} -- 欲進行文字轉換的內文文檔的絕對路徑list
+            convert_file_list {list} -- 欲進行文字轉換的內文文檔的絕對路徑list
         """
         setting = {
             "engine": ["opencc", "zhconvert"],
@@ -145,15 +170,15 @@ class EPubConv:
         # 判斷轉換引擎並轉換
         if self.config['engine'].lower() == 'opencc':
             self.logger.debug('convert_text', 'engine: opencc')
-            for f in convert_list:
+            for f in convert_file_list:
                 self.logger.debug(
                     'convert_text', f'now convert "{os.path.basename(f)}"')
-                self._content_lang(f)
+                self._content_opt_lang(f)
                 self._opencc(self.config['converter'], f)
         if self.config['engine'].lower() == 'zhconvert':
             self.logger.debug('convert_text', 'engine: zhconvert 繁化姬')
-            for f in convert_list:
-                self._content_lang(f)
+            for f in convert_file_list:
+                self._content_opt_lang(f)
 
     def _opencc(self, converter, file):
         """opencc 轉換作業
@@ -172,20 +197,20 @@ class EPubConv:
     def _zhconvert(self, converter):
         """  """
 
-    def _content_lang(self, file):
+    def _content_opt_lang(self, content_file_path):
         """修改 content.opf 中語言標籤的值
 
         Arguments:
-            file {str} -- 欲進行文字轉換的內文文檔的絕對路徑
+            content_file_path {str} -- 欲進行文字轉換的內文文檔的絕對路徑
         """
         converter = {
             "zh-TW": ["s2t", "s2tw", "Traditional", "Taiwan", "WikiTraditional"],
             "zh-CN": ["t2s", "tw2s", "Simplified", "China", "WikiSimplified"]
         }
-        if os.path.basename(file) == 'content.opf':
+        if os.path.basename(content_file_path) == 'content.opf':
             regex = re.compile(
                 r"<dc:language>[\S]*</dc:language>", re.IGNORECASE)
-            fileline = open(file, encoding='utf-8').read()
+            fileline = open(content_file_path, encoding='utf-8').read()
             if self.config['converter'] in converter["zh-TW"]:
                 self.logger.info('_content_lang', 'convert language to zh-TW')
                 modify = re.sub(
@@ -194,7 +219,7 @@ class EPubConv:
                 self.logger.info('_content_lang', 'convert language to zh-CN')
                 modify = re.sub(
                     regex, f'<dc:language>zh-CN</dc:language>', fileline)
-            open(file, 'w', encoding='utf-8').write(modify)
+            open(content_file_path, 'w', encoding='utf-8').write(modify)
 
     def _format(self):
         """  """
@@ -202,18 +227,18 @@ class EPubConv:
     def _clean(self):
         """  """
 
-    def _check(self, file):
+    def _check(self, file_path):
         """檢查檔案 MIME 格式
 
         Epub MIME : application/epub+zip
 
         Arguments:
-            file {str} -- epub檔案的絕對位置(Absolute path)
+            file_path {str} -- epub檔案的絕對位置(Absolute path)
 
         Raises:
             FileTypeError: 檔案格式不符例外處理
         """
-        if not mimetypes.MimeTypes().guess_type(file)[0] == 'application/epub+zip':
+        if not mimetypes.MimeTypes().guess_type(file_path)[0] == 'application/epub+zip':
             raise FileTypeError('File is not a epub file')
 
 

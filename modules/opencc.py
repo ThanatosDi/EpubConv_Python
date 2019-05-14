@@ -1,5 +1,11 @@
+# OpenCC 模組
 # -*- coding: utf8 -*-
-import zipfile, os, glob, sys, shutil, chardet
+import zipfile
+import os
+import glob
+import sys
+import shutil
+import chardet
 
 ##########################################################
 # Author: Yichen Huang (Eugene)
@@ -8,7 +14,7 @@ import zipfile, os, glob, sys, shutil, chardet
 ##########################################################
 
 ##########################################################
-# Revised by: Hopkins1 
+# Revised by: Hopkins1
 # June, 2016
 # Apache License Version 2.0, January 2004
 # - Use a tree-like structure hold the result during conversion
@@ -31,7 +37,8 @@ import sys
 
 CONFIG_DIR = 'config'
 DICT_DIR = 'dictionary'
-WORK_PATH = os.path.abspath(os.path.join(sys.argv[0],os.path.pardir)) #應用程式絕對路徑
+WORK_PATH = os.path.abspath(os.path.join(
+    sys.argv[0], os.path.pardir))  # 應用程式絕對路徑
 
 
 class OpenCC:
@@ -71,7 +78,8 @@ class OpenCC:
             if i % 2 == 0:
                 # Work with the text string
                 # Append converted string to result
-                result.append(self._convert(split_string_list[i], self._dict_chain_data))
+                result.append(self._convert(
+                    split_string_list[i], self._dict_chain_data))
             else:
                 # Work with the separator
                 # Append separator string to converted_string
@@ -79,7 +87,7 @@ class OpenCC:
         # Join it all together to return a result
         return "".join(result)
 
-    def _convert(self, string, dictionary = [], is_dict_group = False):
+    def _convert(self, string, dictionary=[], is_dict_group=False):
         """
         Convert string from Simplified Chinese to Traditional Chinese or vice versa
         If a dictionary is part of a group of dictionaries, stop conversion on a word
@@ -101,7 +109,8 @@ class OpenCC:
             else:
                 # This is a list of dictionaries. Call back in with the dictionary
                 # list but specify that this is a group
-                tree = StringTree(self._convert("".join(tree.inorder()), c_dict, True))
+                tree = StringTree(self._convert(
+                    "".join(tree.inorder()), c_dict, True))
         return "".join(tree.inorder())
 
     def _init_dict(self):
@@ -114,7 +123,7 @@ class OpenCC:
 
         self._dict_chain = []
         config = self.conversion + '.json'
-        config_file = os.path.join( WORK_PATH ,'opencc', CONFIG_DIR, config)
+        config_file = os.path.join(WORK_PATH, 'opencc', CONFIG_DIR, config)
         with open(config_file) as f:
             setting_json = json.load(f)
 
@@ -160,7 +169,7 @@ class OpenCC:
             dict_chain.append(chain)
         elif dict_dict.get('type') == 'txt':
             filename = dict_dict.get('file')
-            dict_file = os.path.join( WORK_PATH ,'opencc', DICT_DIR, filename)
+            dict_file = os.path.join(WORK_PATH, 'opencc', DICT_DIR, filename)
             dict_chain.append(dict_file)
 
     def set_conversion(self, conversion):
@@ -177,10 +186,12 @@ class OpenCC:
             self._dict_init_done = False
             self.conversion = conversion
 
+
 class StringTree:
     """
     Class to hold string during modification process.
     """
+
     def __init__(self, string):
         self.string = string
         self.left = None
