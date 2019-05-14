@@ -8,3 +8,6 @@ class FileUnzipError(Exception):
 
 class ConfigError(Exception):
     pass
+
+class RequestError(Exception):
+    pass

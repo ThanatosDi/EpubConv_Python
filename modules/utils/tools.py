@@ -5,4 +5,7 @@ def get_key(d: dict, value:str):
         d {dict} -- dict
         value {str} -- value
     """
-    return [dk for dk, dv in d.items() if value in dv]
+    dk = [dk for dk, dv in d.items() if value in dv]
+    if dk:
+        return dk[0]
+    return None

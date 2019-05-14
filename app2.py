@@ -33,7 +33,7 @@ class EPubConv:
             os.path.join(sys.argv[0], os.path.pardir))
         self.config = self._read_config(f'{self.workpath}/config.json')
         self.convert_file_list = None
-        self.filename = None
+        self.file_path = None
 
     def _read_config(self, config):
         """讀取設定檔
@@ -46,19 +46,30 @@ class EPubConv:
             with open(config, 'r', encoding='utf-8') as r_c:
                 config = json.loads(r_c.read())
             self.logger.info(
-                '_read_config', f"Aleady read config\nengine: {self.config['engine']}\nconverter: {self.config['converter']}\nformat: {self.config['format']}")
+                '_read_config', f"Aleady read config\nengine: {config['engine']}\nconverter: {config['converter']}\nformat: {config['format']}")
             return config
         else:
             print('error')
 
+    @property
     def _zip(self):
         """  """
-        self._filename
-        if os.path.isfile(self.filename):
+        new_filename = self._filename
+        lists = []
+        for root, _dirs, files in os.walk(f'{self.file_path}_files/'):
+            for filename in files:
+                lists.append(os.path.join(root, filename))
+        split_filename = os.path.splitext(new_filename)
+        with zipfile.ZipFile(f'{split_filename[0]}_tc{split_filename[1]}', 'w', zipfile.zlib.DEFLATED) as z_f:
+            for file in lists:
+                arcname = file[len(f'{self.file_path}_files'):]
+                z_f.write(file, arcname)
+
+        """ if os.path.isfile(new_filename):
             pass
         else:
             FileList = []  
-            if os.path.isfile(zippath):  
+            if os.path.isfile(f'{self.file_path}_files/'):  
                 FileList.append(zippath)  
             else :  
                 for root, _dirs, files in os.walk(zippath):  
@@ -71,11 +82,9 @@ class EPubConv:
                 zf.write(tar,arcname)  
             zf.close()
             if os.path.isfile(epubname):
-                Convert.clean(zippath)
                 return True
             else:
-                Convert.clean(zippath)
-                return False
+                return False """
 
     def _unzip(self, file_path):
         """ 解壓縮 epub 檔案 """
@@ -104,7 +113,7 @@ class EPubConv:
             FileTypeError: 檔案格式不符例外處理
         """
         try:
-            self.filename = epub_file_path
+            self.file_path = epub_file_path
             self._check(epub_file_path)
             self._unzip(epub_file_path)
             if self.convert_file_list:
@@ -112,8 +121,8 @@ class EPubConv:
                     'convert', f'unzip file "{epub_file_path}" success and get convert file list')
                 self._convert_content(self.convert_file_list)
                 self._rename(self.convert_file_list)
-                #self._zip
-                #self._clean
+                self._zip
+                # self._clean
         except Exception as e:
             self.logger.error('convert', f'{str(e)}')
             os.system('pause')
@@ -127,6 +136,7 @@ class EPubConv:
             self.logger.debug('rename', f'rename "{os.path.basename(f)}"')
             os.rename(f'{f}.new', f)
 
+    @property
     def _filename(self):
         """ 轉換 epub 檔案名稱非內文文檔 """
         converter_dict = {
@@ -135,8 +145,8 @@ class EPubConv:
         }
         converter = get_key(converter_dict, self.config['converter'])
         openCC = OpenCC(converter)
-        new_filename = openCC.convert(os.path.basename(self.filename))
-        self.filename = os.path.join(os.path.dirname(self.filename), new_filename)
+        new_filename = openCC.convert(os.path.basename(self.file_path))
+        return os.path.join(os.path.dirname(self.file_path), new_filename)
 
     def _convert_content(self, convert_file_list):
         """內文文字轉換作業
@@ -244,6 +254,5 @@ class EPubConv:
 
 if __name__ == "__main__":
     epub = EPubConv()
-    # epub.convert('1.epub')
-    epub._filename('C:/Users/ThanatosDi/Desktop/Github/EpubConv_Python/1.epub')
+    epub.convert('H:/VSCode/Python/epubconv/1.epub')
     pass
