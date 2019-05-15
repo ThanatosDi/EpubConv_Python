@@ -20,5 +20,25 @@
             "WikiSimplified",
             "WikiTraditional"
         ]
+    },
+    "format": [
+        "Straight",
+        "Horizontal"
+    ],
+    "content_opt": {
+        "zh-TW": [
+            "s2t",
+            "s2tw",
+            "Traditional",
+            "Taiwan",
+            "WikiTraditional"
+        ],
+        "zh-CN": [
+            "t2s",
+            "tw2s",
+            "Simplified",
+            "China",
+            "WikiSimplified"
+        ]
     }
 }
