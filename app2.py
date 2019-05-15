@@ -5,12 +5,15 @@ import os
 import re
 import sys
 import zipfile
+import chardet
+import logging
 
 from modules.console import Console
 from modules.utils.error import FileTypeError, FileUnzipError, ConfigError
 from modules.logger import Logger
 from modules.opencc import OpenCC
-from modules.utils.tools import get_key
+from modules.utils.tools import get_key, resource_path
+from modules.zhconvert import ZhConvert
 
 
 class EPubConv:
@@ -26,7 +29,6 @@ class EPubConv:
             config -- 讀取本程式路徑底下的 config.json 設定檔內容
             convert_file_list -- 執行 unzip 方法後取得 EPub 中需要轉換的檔案之絕對路徑清單(list)
             new_filename -- 轉換後的 EPub 檔案的檔案名稱
-
         """
         self.logger = Logger(name='EPUB')
         self.workpath = os.path.abspath(
@@ -51,6 +53,14 @@ class EPubConv:
         else:
             print('error')
 
+    def _read_allow_setting(self, config):
+        """讀取允許設定
+        
+        Arguments:
+            config {str} -- allow_setting.json path
+        """
+        print(resource_path('allow_setting.json'))
+
     @property
     def _zip(self):
         """  """
@@ -64,27 +74,6 @@ class EPubConv:
             for file in lists:
                 arcname = file[len(f'{self.file_path}_files'):]
                 z_f.write(file, arcname)
-
-        """ if os.path.isfile(new_filename):
-            pass
-        else:
-            FileList = []  
-            if os.path.isfile(f'{self.file_path}_files/'):  
-                FileList.append(zippath)  
-            else :  
-                for root, _dirs, files in os.walk(zippath):  
-                    for name in files:  
-                        FileList.append(os.path.join(root, name))  
-                    
-            zf = zipfile.ZipFile(epubname, 'w', zipfile.zlib.DEFLATED)  
-            for tar in FileList:  
-                arcname = tar[len(zippath):]
-                zf.write(tar,arcname)  
-            zf.close()
-            if os.path.isfile(epubname):
-                return True
-            else:
-                return False """
 
     def _unzip(self, file_path):
         """ 解壓縮 epub 檔案 """
@@ -253,6 +242,9 @@ class EPubConv:
 
 
 if __name__ == "__main__":
-    epub = EPubConv()
-    epub.convert('H:/VSCode/Python/epubconv/1.epub')
+    #epub = EPubConv()
+    # epub.convert('H:/VSCode/Python/epubconv/1.epub')
+    """ zh = ZhConvert()
+    zh.convert() """
+    #epub._read_allow_setting('allow_setting.json')
     pass
