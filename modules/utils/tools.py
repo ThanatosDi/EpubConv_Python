@@ -1,6 +1,8 @@
 import os
 import sys
 
+import cchardet as chardet
+
 
 def get_key(d: dict, value: str):
     """使用 value 搜尋 dict key
@@ -20,3 +22,11 @@ def resource_path(relative_path):
     base_path = getattr(sys, '_MEIPASS', os.path.dirname(
         os.path.abspath(__file__)))
     return os.path.join(base_path, relative_path)
+
+
+def encoding(file_path):
+    """ Return file encoding """
+    with open(file_path, "rb") as f:
+        msg = f.read()
+        result = chardet.detect(msg)
+        return result
