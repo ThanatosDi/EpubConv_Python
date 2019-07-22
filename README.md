@@ -1,3 +1,4 @@
+[![GitHub release](https://img.shields.io/github/release/Kutinging/EpubConv_Python.svg?style=plastic)](https://github.com/Kutinging/EpubConv_Python/releases)  
 # EPubConv_Python EPub簡繁橫直互轉 Rewrite
 <!--[![GitHub release](https://img.shields.io/github/release/ThanatosDi/EpubConv_Python.svg?style=plastic)](https://github.com/ThanatosDi/EpubConv_Python/releases)  -->
   
