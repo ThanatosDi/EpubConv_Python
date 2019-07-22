@@ -14,11 +14,11 @@ https://github.com/ThanatosDi/EpubConv_Python/releases
      - [x] 轉換 content.opf 語言標籤
      - [x] 重新命名已轉換檔案
      - [ ] 格式橫直轉換
-     - [ ] 檔案包裝壓縮
-     - [ ] 清除暫存檔
+     - [x] 檔案包裝壓縮
+     - [x] 清除暫存檔
  - [x] 轉換引擎
      - [x] OpenCC
-     - [ ] zhconvert 繁化姬
+     - [x] zhconvert 繁化姬
      - [ ] GoogleTranslate
 
 # Usage 使用
