@@ -30,12 +30,15 @@ https://github.com/ThanatosDi/EpubConv_Python/releases
 詳細雜湊碼請看 release 頁面的 virustotal 結果
 * [v2.0.0](https://github.com/ThanatosDi/EpubConv_Python/releases/tag/2.0.0)
   * 加入繁化姬轉換引擎
-  *  修改讀取檔案方法，由程式自動判斷檔案編碼(1.X.X版本為強制使用utf-8格式讀取)
+  * 修改讀取檔案方法，由程式自動判斷檔案編碼(1.X.X版本為強制使用utf-8格式讀取)
   * 修改 log 記錄檔記錄功能，只會紀錄當下轉換的輸出，下次轉換時會將記錄清空重新記錄
   * 修改 config 的設定方法，讓使用者更容易設定(裡面包含幫助請記得看)
   * 修改 epub 檔案格式驗證
   * 暫時拔除橫直轉換功能
-# Known Bugs目前已知問題
+# Known Bugs 目前已知問題
+* [2.0.0] 預定 2.0.1 先增加 debug log 功能，繁化姬轉換 Bug 先暫緩
+  * 檔案過大時使用繁化姬轉換將被拒絕(預定分段處理解決)
+  * 未知狀況下轉換檔案時發生檔案格式判斷錯誤之問題(預定下個版本先增加 debug log 功能)
 
 # Third Party Library 第三方庫
 感謝以下作者及團隊，沒有你們這個軟體就不會出現  
