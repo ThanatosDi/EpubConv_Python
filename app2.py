@@ -13,7 +13,7 @@ from modules.console import Console
 from modules.logger import Logger
 from modules.opencc import OpenCC
 from modules.utils.error import (ConfigError, FileTypeError, FileUnzipError,
-                                 ZhConvertError)
+                                 ZhConvertError, RequestError)
 from modules.utils.tools import encoding, get_key, resource_path
 from modules.zhconvert import ZhConvert
 
@@ -34,8 +34,6 @@ class EPubConv:
         """
         self.workpath = os.path.abspath(
             os.path.join(sys.argv[0], os.path.pardir))
-        self.logger = Logger(
-            name='EPUB', workpath=self.workpath)
         self.cfg = self._read_config(f'{self.workpath}/config.ini')
         self.convert_file_list = None
         self.file_path = None
@@ -47,16 +45,17 @@ class EPubConv:
             config {str} -- 設定檔路徑
         """
         if os.path.exists(config):
-            self.logger.info('_read_config', 'read config')
             cfg = ConfigParser()
             cfg_encoding = encoding(config)['encoding']
-            self.logger.info('_read_config encoding',encoding(config)['encoding'])
             cfg.read(config, encoding=cfg_encoding)
+            self.logger = Logger(
+                name='EPUB', filehandler=cfg['setting']['loglevel'], streamhandler=cfg['setting']['syslevel'], workpath=self.workpath)
             self.logger.info(
-                '_read_config', f"already read config\nengine: {cfg['setting']['engine']}\nconverter: {cfg['setting']['converter']}\nformat: {cfg['setting']['format']}")
+                '_read_config', f"already read config\nengine: {cfg['setting']['engine']}\nconverter: {cfg['setting']['converter']}\nformat: {cfg['setting']['format']}\nloglevel: {cfg['setting']['loglevel']}\nsyslevel: {cfg['setting']['syslevel']}")
             return cfg
         else:
-            self.logger.info(f'_read_config', f'can\'t find "config.ini", please check config file.')
+            self.logger.error(
+                f'_read_config', f'can\'t find "config.ini", please check config file.')
 
     """ def _read_allow_setting(self, config):
         '''讀取允許設定
@@ -70,6 +69,7 @@ class EPubConv:
     def _zip(self):
         """  """
         new_filename = self._filename
+        self.logger.debug('zip', f'zip file "{new_filename}""')
         lists = []
         for root, _dirs, files in os.walk(f'{self.file_path}_files/'):
             for filename in files:
@@ -82,6 +82,7 @@ class EPubConv:
 
     def _unzip(self, file_path):
         """ 解壓縮 epub 檔案 """
+        self.logger.debug('unzip', 'unzip epub file.')
         zip_file = zipfile.ZipFile(file_path)
         extract_path = file_path + '_files/'
         if os.path.isdir(extract_path):
@@ -92,6 +93,7 @@ class EPubConv:
             zip_file.extract(names, extract_path)
         self.convert_file_list = [os.path.abspath(extract_path + filename) for filename in zip_file.namelist() if any(
             filename.endswith(FileExtension) for FileExtension in ['ncx', 'opf', 'xhtml', 'html', 'htm', 'txt'])]
+        self.logger.debug('unzip', f'get convert file list: {self.convert_file_list}')
         if not self.convert_file_list:
             raise FileUnzipError(
                 f'unzip "{os.path.basename(file_path)}" failed or epub file is None')
@@ -118,7 +120,8 @@ class EPubConv:
                 self._rename(self.convert_file_list)
                 self._zip
                 self._clean
-            self.logger.info('convert', f'success convert {os.path.basename(epub_file_path)}')
+            self.logger.info(
+                'convert', f'success convert {os.path.basename(epub_file_path)}')
         except Exception as e:
             self.logger.error('convert', f'{str(e)}')
 
@@ -128,7 +131,7 @@ class EPubConv:
         for f in convert_file_list:
             self.logger.debug('rename', f'delete file "{os.path.basename(f)}"')
             os.remove(f)
-            self.logger.debug('rename', f'rename "{os.path.basename(f)}"')
+            self.logger.debug('rename', f'rename "{os.path.basename(f)}.new" to "{os.path.basename(f)}"')
             os.rename(f'{f}.new', f)
 
     @property
@@ -174,19 +177,27 @@ class EPubConv:
             raise ConfigError('Format is not a right format in "config.ini"')
         # 判斷轉換引擎並轉換
         if self.cfg['setting']['engine'].lower() == 'opencc':
-            self.logger.debug('convert_text', 'engine: opencc')
+            self.logger.debug('convert_text', f'engine: opencc, list len: {len(convert_file_list)}')
             for f in convert_file_list:
+                start_time = time.time()
                 self.logger.debug(
-                    'convert_text', f'now convert "{os.path.basename(f)}"')
+                    'convert_text', f'file: "{os.path.basename(f)}"')
                 self._content_opt_lang(f)
                 self._opencc(self.cfg['setting']['converter'], f)
+                end_time = time.time()
+                self.logger.info(
+                    '_opencc', f'({convert_file_list.index(f)+1}/{len(convert_file_list)}) convert file: {os.path.basename(f)} cost {"{:.2f}".format(end_time-start_time)}s')
         if self.cfg['setting']['engine'].lower() == 'zhconvert':
-            self.logger.debug('convert_text', 'engine: zhconvert 繁化姬')
+            self.logger.debug('convert_text', f'engine: zhconvert 繁化姬, list len: {len(convert_file_list)}')
             for f in convert_file_list:
+                start_time = time.time()
                 self.logger.debug(
-                    'convert_text', f'now convert "{os.path.basename(f)}"')
+                    'convert_text', f'file: "{os.path.basename(f)}"')
                 self._content_opt_lang(f)
                 self._zhconvert(self.cfg['setting']['converter'], f)
+                end_time = time.time()
+                self.logger.info(
+                    '_zhconvert', f'({convert_file_list.index(f)+1}/{len(convert_file_list)}) convert file: {os.path.basename(f)} cost {"{:.2f}".format(end_time-start_time)}s')
 
     def _opencc(self, converter, file):
         """opencc
@@ -197,33 +208,29 @@ class EPubConv:
         """
         openCC = OpenCC(converter)
         f_encoding = encoding(file)['encoding']
-        start_time = time.time()
         f_r = open(file, 'r', encoding=f_encoding).readlines()
-        with open(file + '.new', 'w', encoding='utf-8') as f_w:
+        with open(file + '.new', 'a+', encoding='utf-8') as f_w:
             for line in f_r:
                 converted = openCC.convert(line)
                 f_w.write(converted)
-        end_time = time.time()
-        self.logger.info('_opencc', f'convert file: {os.path.basename(file)} cost {"{:.2f}".format(end_time-start_time)}s')
 
     def _zhconvert(self, converter, file):
         """zhconvert 繁化姬
-        
+
         Arguments:
             converter {str} -- config.ini 中 converter 設定，轉換模式
             file {str} -- 欲進行文字轉換的內文文檔的絕對路徑
         """
         zhconvert = ZhConvert()
         f_encoding = encoding(file)['encoding']
-        start_time = time.time()
         with open(file, 'r', encoding=f_encoding) as f_r:
-            zhconvert.convert(text=f_r.read(), converter=converter)
-            with open(file + '.new', 'w', encoding='utf-8') as f_w:
+            content = f_r.read()
+            self.logger.debug('zhconvert', f'file: {os.path.basename(file)}, content len: {len(content)}')
+            zhconvert.convert(text=content, converter=converter)
+            with open(file + '.new', 'a+', encoding='utf-8') as f_w:
                 if zhconvert.text is None:
                     raise ZhConvertError()
                 f_w.write(zhconvert.text)
-        end_time = time.time()
-        self.logger.info('_zhconvert', f'convert file: {os.path.basename(file)} cost {"{:.2f}".format(end_time-start_time)}s')
 
     def _content_opt_lang(self, content_file_path):
         """修改 content.opf 中語言標籤的值
@@ -279,11 +286,13 @@ class EPubConv:
     @property
     def _clean(self):
         """ 清除解壓縮後的檔案 """
-        if os.path.isdir( f'{self.file_path}_files'):
-            self.logger.info('_clean', f'delete tmp files: {self.file_path}_files')
+        if os.path.isdir(f'{self.file_path}_files'):
+            self.logger.info(
+                '_clean', f'delete tmp files: {self.file_path}_files')
             shutil.rmtree(f'{self.file_path}_files')
         else:
-            self.logger.error('_clean', f'path: {self.file_path}_files not found.')
+            self.logger.error(
+                '_clean', f'path: {self.file_path}_files not found.')
 
     def _check(self, file_path):
         """檢查檔案 MIME 格式
@@ -296,6 +305,8 @@ class EPubConv:
         Raises:
             FileTypeError: 檔案格式不符例外處理
         """
+        self.logger.debug(
+            'check', f'file mimetypes: {mimetypes.MimeTypes().guess_type(file_path)}')
         if not mimetypes.MimeTypes().guess_type(file_path)[0] == 'application/epub+zip':
             raise FileTypeError('File is not a epub file')
 
