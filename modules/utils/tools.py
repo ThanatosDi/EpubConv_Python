@@ -30,3 +30,13 @@ def encoding(file_path):
         msg = f.read()
         result = chardet.detect(msg)
         return result
+
+def replace(content, replace_string_list = [' '], new=''):
+    '''將 content 中 replace_string_list 的字串變為空
+    
+    Arguments:
+        content {[type]} -- [description]
+    '''
+    for string in replace_string_list:
+        content = content.replace(string, new)
+    return content
