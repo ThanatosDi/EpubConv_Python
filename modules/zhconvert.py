@@ -2,7 +2,6 @@
 import json
 
 import requests
-
 from modules.utils.error import (RequestError, ZhconvertKeyNotFound,
                                  ZhConvertMissNecessarykey)
 
@@ -17,7 +16,7 @@ class ZhConvert:
     def __request(self, endpoint: str, playload):
         with requests.get(f'{self.api}{endpoint}', data=playload) as req:
             if req.status_code != 200:
-                raise RequestError('Request error.')
+                raise RequestError(f'zhconvert Request error. status code: {req.status_code}')
             req.encoding = 'utf-8'
             return json.loads(req.text)
 
