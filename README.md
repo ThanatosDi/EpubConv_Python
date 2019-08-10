@@ -48,3 +48,7 @@ https://github.com/ThanatosDi/EpubConv_Python/releases
 [OpenCC-Python](https://github.com/yichen0831/opencc-python) by yichen0831  
 [zhconvert 繁化姬](https://zhconvert.org/) by Fanhuaji organizations (rexx0520建議)  
 [Google Translate](https://cloud.google.com/translate/) by Google  
+
+# 贊助我
+只要少喝一杯飲料就可以給我大大的鼓勵  
+<a href="https://p.ecpay.com.tw/7D0E7"><img src="https://payment.ecpay.com.tw/Upload/QRCode/201908/QRCode_c3efe2f9-5367-4db4-8440-b6592d9c9e0c.png" /></a>
