@@ -14,7 +14,7 @@ from modules.logger import Logger
 from modules.opencc import OpenCC
 from modules.utils.error import (ConfigError, FileTypeError, FileUnzipError,
                                  ZhConvertError, RequestError)
-from modules.utils.tools import encoding, get_key, resource_path
+from modules.utils.tools import encoding, get_key, resource_path, replace
 from modules.zhconvert import ZhConvert
 
 
@@ -50,6 +50,7 @@ class EPubConv:
             cfg.read(config, encoding=cfg_encoding)
             self.logger = Logger(
                 name='EPUB', filehandler=cfg['setting']['loglevel'], streamhandler=cfg['setting']['syslevel'], workpath=self.workpath)
+            self.logger.info('__version__', '2.0.2')
             self.logger.info(
                 '_read_config', f"already read config\nengine: {cfg['setting']['engine']}\nconverter: {cfg['setting']['converter']}\nformat: {cfg['setting']['format']}\nloglevel: {cfg['setting']['loglevel']}\nsyslevel: {cfg['setting']['syslevel']}")
             return cfg
@@ -93,7 +94,8 @@ class EPubConv:
             zip_file.extract(names, extract_path)
         self.convert_file_list = [os.path.abspath(extract_path + filename) for filename in zip_file.namelist() if any(
             filename.endswith(FileExtension) for FileExtension in ['ncx', 'opf', 'xhtml', 'html', 'htm', 'txt'])]
-        self.logger.debug('unzip', f'get convert file list: {self.convert_file_list}')
+        self.logger.debug(
+            'unzip', f'get convert file list: {self.convert_file_list}')
         if not self.convert_file_list:
             raise FileUnzipError(
                 f'unzip "{os.path.basename(file_path)}" failed or epub file is None')
@@ -131,7 +133,8 @@ class EPubConv:
         for f in convert_file_list:
             self.logger.debug('rename', f'delete file "{os.path.basename(f)}"')
             os.remove(f)
-            self.logger.debug('rename', f'rename "{os.path.basename(f)}.new" to "{os.path.basename(f)}"')
+            self.logger.debug(
+                'rename', f'rename "{os.path.basename(f)}.new" to "{os.path.basename(f)}"')
             os.rename(f'{f}.new', f)
 
     @property
@@ -177,7 +180,8 @@ class EPubConv:
             raise ConfigError('Format is not a right format in "config.ini"')
         # 判斷轉換引擎並轉換
         if self.cfg['setting']['engine'].lower() == 'opencc':
-            self.logger.debug('convert_text', f'engine: opencc, list len: {len(convert_file_list)}')
+            self.logger.debug(
+                'convert_text', f'engine: opencc, list len: {len(convert_file_list)}')
             for f in convert_file_list:
                 start_time = time.time()
                 self.logger.debug(
@@ -188,7 +192,8 @@ class EPubConv:
                 self.logger.info(
                     '_opencc', f'({convert_file_list.index(f)+1}/{len(convert_file_list)}) convert file: {os.path.basename(f)} cost {"{:.2f}".format(end_time-start_time)}s')
         if self.cfg['setting']['engine'].lower() == 'zhconvert':
-            self.logger.debug('convert_text', f'engine: zhconvert 繁化姬, list len: {len(convert_file_list)}')
+            self.logger.debug(
+                'convert_text', f'engine: zhconvert 繁化姬, list len: {len(convert_file_list)}')
             for f in convert_file_list:
                 start_time = time.time()
                 self.logger.debug(
@@ -225,12 +230,28 @@ class EPubConv:
         f_encoding = encoding(file)['encoding']
         with open(file, 'r', encoding=f_encoding) as f_r:
             content = f_r.read()
-            self.logger.debug('zhconvert', f'file: {os.path.basename(file)}, content len: {len(content)}')
-            zhconvert.convert(text=content, converter=converter)
-            with open(file + '.new', 'a+', encoding='utf-8') as f_w:
-                if zhconvert.text is None:
-                    raise ZhConvertError()
-                f_w.write(zhconvert.text)
+            self.logger.debug(
+                'zhconvert', f'file: {os.path.basename(file)}, content len: {len(content)}')
+            # 當內容過長時分段處理
+            if len(content) > 50000:
+                c_len = len(content)/50000
+                self.logger.info(
+                    'zhconvert', 'content too long, segmentation content.')
+                f_w = open(file + '.new', 'a+', encoding='utf-8')
+                for i in range(0, int(c_len)+1):
+                    self.logger.info(
+                        'zhconvert', f'convert file {os.path.basename(file)}, part {i+1} of {int(c_len)+1}')
+                    zhconvert.convert(text=replace(
+                        content[50000*(i):50000*(i+1)]), converter=converter)
+                    if zhconvert.text is None:
+                        raise ZhConvertError()
+                    f_w.write(zhconvert.text)
+            else:
+                zhconvert.convert(text=content, converter=converter)
+                with open(file + '.new', 'a+', encoding='utf-8') as f_w:
+                    if zhconvert.text is None:
+                        raise ZhConvertError()
+                    f_w.write(zhconvert.text)
 
     def _content_opt_lang(self, content_file_path):
         """修改 content.opf 中語言標籤的值
@@ -306,7 +327,7 @@ class EPubConv:
             FileTypeError: 檔案格式不符例外處理
         """
         self.logger.debug(
-            'check', f'file mimetypes: {mimetypes.MimeTypes().guess_type(file_path)}')
+            'check', f'file: {file_path}, file mimetypes: {mimetypes.MimeTypes().guess_type(file_path)}')
         if not mimetypes.MimeTypes().guess_type(file_path)[0] == 'application/epub+zip':
             raise FileTypeError('File is not a epub file')
 
@@ -316,4 +337,3 @@ if __name__ == "__main__":
     for epub in sys.argv[1:]:
         EPubConvert.convert(epub)
     os.system("pause")
-    pass
