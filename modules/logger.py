@@ -22,25 +22,33 @@ class Logger(object):
     # logging.basicConfig(format='%(asctime)s %(levelname)s :\n%(message)s',
     #                    level=level, datefmt='%Y-%m-%d %H:%M:%S', filename='DBAPI.log', filemode='w')
 
-    def __init__(self, name='logger', config=None, workpath=None):
+    def __init__(self, name='logger', filehandler='INFO', streamhandler='INFO', workpath=None):
         """Logger
 
         Keyword Arguments:
             name {str} -- [name of logging] (default: {'logger'})
         """
-        logging.basicConfig(level=logging.INFO)
-        #logging.config.fileConfig(fname=config, disable_existing_loggers=False)
+
+        self.logger = logging.getLogger(name)
+        self.logger.setLevel(logging.DEBUG)
+
         formatter = logging.Formatter('%(asctime)s %(name)s %(levelname)s : %(message)s')
         if not workpath:
             workpath = os.path.abspath(os.path.join(sys.argv[0], os.path.pardir))
         
-        log = logging.FileHandler(
+        # log 檔案 handler
+        file_handler = logging.FileHandler(
             f'{workpath}/epubconv.log', 'w', encoding='utf-8')
-        log.setFormatter(formatter)
-        log.setLevel(logging.DEBUG)
+        file_handler.setFormatter(formatter)
+        file_handler.setLevel(getattr(logging, filehandler.upper()))
 
-        self.logger = logging.getLogger(name)
-        self.logger.addHandler(log)
+        # command handler
+        stream_handler = logging.StreamHandler()
+        stream_handler.setFormatter(formatter)
+        stream_handler.setLevel(getattr(logging, streamhandler.upper()))
+        
+        self.logger.addHandler(file_handler)
+        self.logger.addHandler(stream_handler)
 
     def debug(self, function, msg):
         """ logging debug level
