@@ -28,6 +28,11 @@ https://github.com/ThanatosDi/EpubConv_Python/releases
 直接將 epub 檔案拖曳至 epubconv.exe 上即可立即翻譯 epub 檔案
 # Update history 更新歷史
 詳細雜湊碼請看 release 頁面的 virustotal 結果
+* [v2.0.2](https://github.com/ThanatosDi/EpubConv_Python/releases/tag/2.0.2)
+  * 增加繁化姬分段處理功能
+  * 增加版號輸出
+  * 增加繁化姬轉換錯誤時 HTTP Request status code 回傳
+  * 新增 replace 函數 (目前處理 unicode 中的 '\u2029')
 * [v2.0.0](https://github.com/ThanatosDi/EpubConv_Python/releases/tag/2.0.0)
   * 加入繁化姬轉換引擎
   * 修改讀取檔案方法，由程式自動判斷檔案編碼(1.X.X版本為強制使用utf-8格式讀取)
@@ -36,9 +41,6 @@ https://github.com/ThanatosDi/EpubConv_Python/releases
   * 修改 epub 檔案格式驗證
   * 暫時拔除橫直轉換功能
 # Known Bugs 目前已知問題
-* [2.0.1]
-  * 檔案過大時使用繁化姬轉換將被拒絕(預定分段處理解決)
-  * 未知狀況下轉換檔案時發生檔案格式判斷錯誤之問題
 
 # Third Party Library 第三方庫
 感謝以下作者及團隊，沒有你們這個軟體就不會出現  
