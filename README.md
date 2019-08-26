@@ -17,6 +17,7 @@ https://github.com/ThanatosDi/EpubConv_Python/releases
      - [ ] 格式橫直轉換
      - [x] 檔案包裝壓縮
      - [x] 清除暫存檔
+     - [ ] 繁化姬異步處理
  - [x] 轉換引擎
      - [x] OpenCC
      - [x] zhconvert 繁化姬
