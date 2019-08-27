@@ -29,3 +29,6 @@ class ZhConvertMissNecessarykey(Exception):
 class ZhConvertError(Exception):
     def __str__(self):
         return f'ZhConvert response is None, please check text or converter.'
+
+class AsyncRequestError(Exception):
+    pass
