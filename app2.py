@@ -1,3 +1,4 @@
+import asyncio
 import ctypes
 import json
 import mimetypes
@@ -13,9 +14,9 @@ from modules.console import Console
 from modules.logger import Logger
 from modules.opencc import OpenCC
 from modules.utils.error import (ConfigError, FileTypeError, FileUnzipError,
-                                 ZhConvertError, RequestError)
-from modules.utils.tools import encoding, get_key, resource_path, replace
-from modules.zhconvert import ZhConvert
+                                 RequestError, ZhConvertError)
+from modules.utils.tools import encoding, get_key, replace, resource_path
+from modules.zhconvert import ZhConvert, ZhConvert_Bata
 
 
 class EPubConv:
@@ -50,7 +51,7 @@ class EPubConv:
             cfg.read(config, encoding=cfg_encoding)
             self.logger = Logger(
                 name='EPUB', filehandler=cfg['setting']['loglevel'], streamhandler=cfg['setting']['syslevel'], workpath=self.workpath)
-            self.logger.info('__version__', '2.0.2')
+            self.logger.info('__version__', '2.0.3_bata')
             self.logger.info(
                 '_read_config', f"already read config\nengine: {cfg['setting']['engine']}\nconverter: {cfg['setting']['converter']}\nformat: {cfg['setting']['format']}\nloglevel: {cfg['setting']['loglevel']}\nsyslevel: {cfg['setting']['syslevel']}")
             return cfg
@@ -163,10 +164,11 @@ class EPubConv:
             convert_file_list {list} -- 欲進行文字轉換的內文文檔的絕對路徑list
         """
         setting = {
-            "engine": ["opencc", "zhconvert"],
+            "engine": ["opencc", "zhconvert", "zhconvert_bata"],
             "converter": {
                 "opencc": ["s2t", "t2s", "s2tw", "tw2s"],
-                "zhconvert": ["Simplified", "Traditional", "China", "Taiwan", "WikiSimplified", "WikiTraditional"]
+                "zhconvert": ["Simplified", "Traditional", "China", "Taiwan", "WikiSimplified", "WikiTraditional"],
+                "zhconvert_bata": ["Simplified", "Traditional", "China", "Taiwan", "WikiSimplified", "WikiTraditional"]
             },
             "format": ["Straight", "Horizontal"]
         }
@@ -203,6 +205,27 @@ class EPubConv:
                 end_time = time.time()
                 self.logger.info(
                     '_zhconvert', f'({convert_file_list.index(f)+1}/{len(convert_file_list)}) convert file: {os.path.basename(f)} cost {"{:.2f}".format(end_time-start_time)}s')
+        if self.cfg['setting']['engine'].lower() == 'zhconvert_bata':
+            self.logger.debug(
+                'convert_text', f'engine: zhconvert_bata 繁化姬, list len: {len(convert_file_list)}')
+            chapters = []
+            for f in convert_file_list:
+                self.logger.debug(
+                    'convert_text', f'file: "{os.path.basename(f)}"')
+                self._content_opt_lang(f)
+                f_encoding = encoding(f)['encoding']
+                with open(f, 'r', encoding=f_encoding) as fr:
+                    content = fr.read()
+                    chapter = {
+                        'filename': f,
+                        'content': content
+                    }
+                    chapters.append(chapter)
+            Object = {
+                'book': chapters,
+                'converter': self.cfg['setting']['converter']
+            }
+            self._zhconvert_bata(**Object)
 
     def _opencc(self, converter, file):
         """opencc
@@ -252,6 +275,23 @@ class EPubConv:
                     if zhconvert.text is None:
                         raise ZhConvertError()
                     f_w.write(zhconvert.text)
+
+    def _zhconvert_bata(self,  **args):
+        """繁化姬異步處理
+
+        Arguments:
+            converter {str} -- config.ini 中 converter 設定，轉換模式
+            convert_file_list {list} -- 欲進行文字轉換的內文文檔的絕對路徑清單
+        """
+        zhconvert = ZhConvert_Bata()
+        self.logger.info('_zhconvert_bata', 'async convert content.')
+        responses = asyncio.run(zhconvert.async_convert(**args))
+        for response in responses:
+            self.logger.info(
+                '_zhconvert_bata', f'({responses.index(response)+1}/{len(responses)}) write content of {os.path.basename(response["filename"])}')
+            with open(f'{response["filename"]}.new', 'a+', encoding='utf-8') as fr:
+                for content in response['content']:
+                    fr.write(content)
 
     def _content_opt_lang(self, content_file_path):
         """修改 content.opf 中語言標籤的值
