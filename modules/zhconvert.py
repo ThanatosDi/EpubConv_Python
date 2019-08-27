@@ -1,8 +1,12 @@
 # 繁化姬模組
+import asyncio
 import json
 
+import aiohttp
 import requests
-from modules.utils.error import (RequestError, ZhconvertKeyNotFound,
+
+from modules.utils.error import (AsyncRequestError, RequestError,
+                                 ZhconvertKeyNotFound,
                                  ZhConvertMissNecessarykey)
 
 
@@ -16,7 +20,8 @@ class ZhConvert:
     def __request(self, endpoint: str, playload):
         with requests.get(f'{self.api}{endpoint}', data=playload) as req:
             if req.status_code != 200:
-                raise RequestError(f'zhconvert Request error. status code: {req.status_code}')
+                raise RequestError(
+                    f'zhconvert Request error. status code: {req.status_code}')
             req.encoding = 'utf-8'
             return json.loads(req.text)
 
@@ -94,3 +99,89 @@ class ZhConvert:
         if self.convert_obj['code'] != 0:
             return None
         return self.convert_obj['data']['text']
+
+
+class ZhConvert_Bata:
+    """繁化姬異步處理模組
+
+    """
+
+    def __init__(self):
+        self.api = 'https://api.zhconvert.org'
+
+    async def fetch(self, session, endpoint: str, chapter: dict):
+        '''
+            coroutine function to fetch data from the API.
+
+        Arguments:
+            session {aiohttp object} -- aiohttp client session.
+            endpoint {str} -- api endpoint.
+        '''
+        response_content = []
+        if chapter.get('filename', None) is None or chapter.get('content', None) is None:
+            raise AsyncRequestError('Miss kwargs')
+        paragraph_content = self.paragraph(chapter.get('content', None))
+        for content in paragraph_content:
+            playload = {
+                'text': content,
+                'converter': chapter.get('converter', None)
+            }
+            async with session.get(f'{self.api}{endpoint}', data=playload) as response:
+                if response.status != 200:
+                    raise AsyncRequestError(
+                        f'zhconvert Request error. status code: {response.status}')
+                resp = await response.json()
+                if resp['code'] == 0:
+                    response_content.append(resp['data']['text'])
+                else:
+                    raise AsyncRequestError(
+                        f'zhconvert convert error. return code: {resp["code"]}')
+        return {'filename': chapter['filename'], 'content': response_content}
+        
+
+    def paragraph(self, content):
+        '''
+        '''
+        paragraph_content:str = []
+        if len(content) > 50_000:
+            paragraph_count = len(content)/50_000
+            for i in range(0, int(paragraph_count)+1):
+                paragraph_content.append(content[50_000*(i):50_000*(i+1)])
+        else:
+            paragraph_content.append(content)
+        return paragraph_content
+
+    async def async_convert(self, **args):
+        '''
+            coroutine function to convert content from the epub file.
+
+        Necessary Arguments:
+            book {json} - chapters of book.
+            converter {str} - zhconvert convert mode.
+        '''
+        allow_keys = [
+            'book',
+            'converter',
+            'ignoreTextStyles',
+            'jpTextStyles',
+            'jpStyleConversionStrategy',
+            'jpTextConversionStrategy',
+            'modules',
+            'userPostReplace',
+            'userPreReplace',
+            'userProtectReplace',
+        ]
+        tasks = []
+        error_key = [key for key in args.keys() if key not in allow_keys]
+        if error_key:
+            raise ZhconvertKeyNotFound(', '.join(error_key))
+        if args.get('book', None) is None or args.get('converter', None) is None:
+            raise ZhConvertMissNecessarykey()
+        async with aiohttp.ClientSession() as session:
+            for chapter in args.get('book'):
+                chapter['converter'] = args.get('converter')
+                task = asyncio.create_task(
+                    self.fetch(session, '/convert', chapter))
+                tasks.append(task)
+            async_response = await asyncio.gather(*tasks)
+        return async_response
