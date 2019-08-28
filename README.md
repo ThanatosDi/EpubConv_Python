@@ -1,4 +1,5 @@
-[![GitHub release](https://img.shields.io/github/release/Kutinging/EpubConv_Python.svg?style=plastic)](https://github.com/Kutinging/EpubConv_Python/releases)  
+[![GitHub release](https://img.shields.io/github/release/Kutinging/EpubConv_Python.svg?style=plastic)](https://github.com/Kutinging/EpubConv_Python/releases)
+[![GitHub release](https://img.shields.io/github/v/release/ThanatosDi/EpubConv_Python?include_prereleases&style=plastic)](https://github.com/Kutinging/EpubConv_Python/releases)  
 # EPubConv_Python EPub簡繁橫直互轉 Rewrite
 <!--[![GitHub release](https://img.shields.io/github/release/ThanatosDi/EpubConv_Python.svg?style=plastic)](https://github.com/ThanatosDi/EpubConv_Python/releases)  -->
   
@@ -17,7 +18,7 @@ https://github.com/ThanatosDi/EpubConv_Python/releases
      - [ ] 格式橫直轉換
      - [x] 檔案包裝壓縮
      - [x] 清除暫存檔
-     - [ ] 繁化姬異步處理
+     - [x] 繁化姬異步處理
  - [x] 轉換引擎
      - [x] OpenCC
      - [x] zhconvert 繁化姬
