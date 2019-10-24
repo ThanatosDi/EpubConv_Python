@@ -55,3 +55,6 @@ https://github.com/ThanatosDi/EpubConv_Python/releases
 # 贊助我
 只要少喝一杯飲料就可以給我大大的鼓勵  
 [![QR](https://payment.ecpay.com.tw/Upload/QRCode/201908/QRCode_c3efe2f9-5367-4db4-8440-b6592d9c9e0c.png)](https://p.ecpay.com.tw/7D0E7)
+
+  ## 感謝贊助 Thank you for Donate
+   * 2019/10/24 蕭先生/小姐
