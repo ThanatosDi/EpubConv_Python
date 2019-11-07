@@ -1,0 +1,231 @@
+<!doctype html>
+<html class="no-js h-100" lang="zh-tw">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>EpubConv Settings</title>
+  <meta name="description"
+    content="A high-quality &amp; free Bootstrap admin dashboard template pack that comes with lots of templates and components.">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <!-- <link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet"> -->
+  <link rel="stylesheet" href="styles/fontawesome.all.css">
+  <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+    integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous"> -->
+  <link rel="stylesheet" href="styles/bootstrap.min.css">
+  <link rel="stylesheet" id="main-stylesheet" data-version="1.1.0" href="styles/shards-dashboards.1.1.0.min.css">
+  <link rel="stylesheet" href="styles/extras.1.1.0.min.css">
+  <link rel="stylesheet" href="styles/sweetalert2.min.css">
+  <!-- <script async defer src="https://buttons.github.io/buttons.js"></script> -->
+  <script async defer src="scripts/buttons.js"></script>
+  <style type="text/css">
+    body,
+    html {
+      font-size: 13pt;
+    }
+
+    title {
+      font-size: 14px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body class="h-100">
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Main Sidebar -->
+      <!-- End Main Sidebar -->
+      <!-- / .main-navbar -->
+      <div class="main-content-container container-fluid px-4">
+        <!-- Page Header -->
+        <div class="page-header row no-gutters py-4">
+          <div class="col-12 col-sm-4 text-center text-sm-left mb-0">
+            <span class="text-uppercase page-subtitle"></span>
+            <h3 class="page-title">EpubConv Settings</h3>
+          </div>
+        </div>
+        <div class="row">
+
+          <div class="col-lg-12 mb-8">
+            <div class="card card-small mb-8">
+              <div class="card-header border-bottom">
+                <h6 class="m-0">EpubConv 轉換設定</h6>
+              </div>
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item p-0 px-3 pt-3">
+                  <div class="row">
+                    <div class="col-sm-12 col-md-4 mb-3">
+                      <!-- Toggles -->
+                      <form method="post" action='index'></form>
+                      <fieldset>
+                        <strong class="text-muted d-block mb-2">[Setting]</strong>
+                        <font style="font-size: 18px; font-weight: bold;">轉換引擎：</font>
+                        <select id="engine" class="form-control"
+                          style="font-family: none; font-size: 13pt; font-weight:bold; height: auto;">
+                          <option value=""></option>
+                          <option value="opencc">opencc</option>
+                          <option value="zhconvert">zhconvert 繁化姬</option>
+                          <option value="zhconvert_bata">zhconvert_bata 繁化姬異步處理</option>
+                        </select>
+                        <font style="font-size: 18px; font-weight: bold;">轉換模式：</font>
+                        <select id="converter" class="form-control"
+                          style="font-family: none; font-size: 13pt; font-weight:bold; height: auto;">
+                        </select>
+                        <font style="font-size: 18px; font-weight: bold;">內文樣式模式(此部分尚未實作)：</font>
+                        <select id="format" class="form-control"
+                          style="font-family: none; font-size: 13pt; font-weight:bold; height: auto;">
+                          <option value=""></option>
+                          <option value="Straight">文字格式轉為直式</option>
+                          <option value="Horizontal">文字格式轉為橫式</option>
+                        </select>
+                        <hr />
+                        <font style="font-size: 18px; font-weight: bold;">記錄檔層級 <a href="javascript:void(0);"
+                            id="loglevel_help"><i class="fas fa-question-circle"></i></a>：</font>
+                        <select id="loglevel" class="form-control"
+                          style="font-family: none; font-size: 13pt; font-weight:bold; height: auto;">
+                          <option value=""></option>
+                          <option value="CRITICAL">CRITICAL</option>
+                          <option value="ERROR">ERROR</option>
+                          <option value="WARNING">WARNING</option>
+                          <option value="INFO">INFO</option>
+                          <option value="DEBUG">DEBUG</option>
+                          <option value="NOTSET">NOTSET</option>
+                        </select>
+                        <font style="font-size: 18px; font-weight: bold;">視窗訊息層級 <a href="javascript:void(0);"
+                            id="syslevel_help"><i class="fas fa-question-circle"></i></a>：</font>
+                        <select id="syslevel" class="form-control"
+                          style="font-family: none; font-size: 13pt; font-weight:bold; height: auto;">
+                          <option value=""></option>
+                          <option value="CRITICAL">CRITICAL</option>
+                          <option value="ERROR">ERROR</option>
+                          <option value="WARNING">WARNING</option>
+                          <option value="INFO">INFO</option>
+                          <option value="DEBUG">DEBUG</option>
+                          <option value="NOTSET">NOTSET</option>
+                        </select>
+                        <hr />
+                        <strong class="text-muted d-block mb-2">[Other]<a href="javascript:void(0);" id="Other_help"><i
+                              class="fas fa-question-circle"></i></a></strong>
+                        <div class="custom-control custom-toggle custom-toggle-sm mb-1">
+                          <input type="checkbox" id="file_check" name="file_check" class="custom-control-input"
+                            checked="true">
+                          <label class="custom-control-label" for="file_check"
+                            style="font-size: 18px; font-weight: bold;">是否啟用檔案類型判斷？</label>
+                        </div>
+                        <div class="custom-control custom-toggle custom-toggle-sm mb-1">
+                          <input type="checkbox" id="enable_pause" name="enable_pause" class="custom-control-input" checked="true">
+                          <label class="custom-control-label" for="enable_pause"
+                            style="font-size: 18px; font-weight: bold;">是否啟用轉換完成後的暫停？</label>
+                        </div>
+                        <div class="text-right mb-3">
+                          <button type="button" id="save_btn" class="mb-2 btn btn-sm btn-primary mr-1"
+                            style="font-family: none; font-size: 13pt; font-weight:bold; height: auto;">保存設定</button>
+                        </div>
+                        </form>
+                      </fieldset>
+                      <!-- / Toggles -->
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>if (typeof module === 'object') { window.module = module; module = undefined; }</script>
+  <!-- <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+    integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>-->
+  <script src="scripts/jquery-3.3.1.min.js"></script>
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+    integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+    crossorigin="anonymous"></script> -->
+  <script src="scripts/popper.min.js"></script>
+  <!-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+    integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+    crossorigin="anonymous"></script> -->
+  <script src="scripts/bootstrap.min.js"></script>
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script> -->
+  <!-- <script src="scripts/Chart.min.js"></script> -->
+  <!-- <script src="https://unpkg.com/shards-ui@latest/dist/js/shards.min.js"></script> -->
+  <script src="scripts/shards.min.js"></script>
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Sharrre/2.0.1/jquery.sharrre.min.js"></script> -->
+  <script src="scripts/jquery.sharrre.min.js"></script>
+  <script src="scripts/extras.1.1.0.min.js"></script>
+  <script src="scripts/shards-dashboards.1.1.0.min.js"></script>
+  <script src="scripts/app/app-blog-overview.1.1.0.js"></script>
+  <script src="scripts/sweetalert2.all.min.js"></script>
+  <script src="index.js"></script>
+  <script src="fontawesome-free-5.11.2-web/js/all.min.js"></script>
+  <script>
+    document.querySelector('#engine').addEventListener('click', () => {
+      var engine = document.querySelector('#engine').value;
+      var converter = document.querySelector('#converter');
+      console.log('engine EventListener')
+      converter.length = 0;
+      switch (engine) {
+        case 'opencc':
+          console.log('opencc')
+          var items = {
+            's2t 簡轉繁': 's2t',
+            't2s 繁轉簡': 't2s',
+            's2tw 簡體字轉台灣用字': 's2tw',
+            'tw2s 台灣用字轉簡體字': 'tw2s',
+          }
+          break;
+        case 'zhconvert':
+          console.log('zhconvert')
+          var items = {
+            'Simplified 簡體化': 'Simplified',
+            'Traditional 繁體化': 'Traditional',
+            'China 中國用語化': 'China',
+            'Taiwan 台灣用語化': 'Taiwan',
+            'WikiSimplified 維基簡體化': 'WikiSimplified',
+            'WikiTraditional 維基繁體化': 'WikiTraditional'
+          }
+          break;
+        case 'zhconvert_bata':
+          console.log('zhconvert_bata')
+          var items = {
+            'Simplified 簡體化': 'Simplified',
+            'Traditional 繁體化': 'Traditional',
+            'China 中國用語化': 'China',
+            'Taiwan 台灣用語化': 'Taiwan',
+            'WikiSimplified 維基簡體化': 'WikiSimplified',
+            'WikiTraditional 維基繁體化': 'WikiTraditional'
+          }
+          break;
+      }
+      for (key in items) {
+        converter.add(new Option(key, items[key]))
+      }
+    })
+    document.querySelector('#loglevel_help').addEventListener('click', () => {
+      Swal.fire({
+        type: 'question',
+        title: '幫助',
+        html: "這個是設定 log 記錄檔紀錄層級，選項越上面代表層級越高<br>CRITICAL    50<br>ERROR	    40<br>WARNING	    30<br>INFO	    20<br>DEBUG	    10<br>NOTSET	     0<br>高層級的設定不會記錄低層級的訊息<br>e.g. 設定 CRITICAL(50) 50 以下的訊息層級都不會記錄"
+      })
+    })
+    document.querySelector('#syslevel_help').addEventListener('click', () => {
+      Swal.fire({
+        type: 'question',
+        title: '幫助',
+        html: "這個是設定轉換時視窗訊息輸出層級，選項越上面代表層級越高<br>CRITICAL    50<br>ERROR	    40<br>WARNING	    30<br>INFO	    20<br>DEBUG	    10<br>NOTSET	     0<br>高層級的設定不會記錄低層級的訊息<br>e.g. 設定 CRITICAL(50) 50 以下的訊息層級都不會輸出"
+      })
+    })
+    document.querySelector('#Other_help').addEventListener('click', () => {
+      Swal.fire({
+        type: 'question',
+        title: '幫助',
+        html: "滑條靠右(有綠色)代表是，反之為否<br><font color='red'>Epubconv 2.0.4</font> 以後版本適用<hr>是否啟用檔案類型判斷？<br>   是：每次轉換時都會進行檔案格式判斷<br>   否：不進行檔案格式判斷<hr>是否啟用轉換完成後的暫停？<br>是：當列隊檔案轉換完成後顯示 'press any key to continue' <br>否：不顯示 'press any key to continue' 直接退出"
+      })
+    })
+  </script>
+  <script>if (window.module) module = window.module;</script>
+</body>
+
+</html>

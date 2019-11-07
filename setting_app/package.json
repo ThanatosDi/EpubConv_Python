@@ -1,0 +1,38 @@
+{
+  "build": {
+    "productName": "Epubconv Setting",
+    "appId": "EpubconvSetting.win32.1.0.0",
+    "copyright": "Copyright © 2019 ${author}",
+    "directories": {
+      "output": "build"
+    },
+    "asar": false,
+    "artifactName": "${productName}-${version}.${ext}",
+    "win": {
+      "icon": "app.ico",
+      "target": "portable"
+    }
+  },
+  "name": "electron",
+  "version": "1.0.0",
+  "description": "electron",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "win32": "./node_modules/.bin/electron-packager . --overwrite --asar=true --ignore='.env' --ignore='.vscode' --ignore='__pycache__' --ignore='py$' --ignore='node_modules/electron-*' --ignore='api.spec' --ignore='apiF.spec' --ignore='config.ini' --ignore='technical-support.png' --ignore='app.ico' --icon='./app.ico' --extraResources='app'"
+  },
+  "repository": "https://github.com/ThanatosDi/EpubConv_Python",
+  "keywords": "1",
+  "author": "ThanatosDi",
+  "license": "Apache License 2.0",
+  "devDependencies": {
+    "electron": "^6.0.1",
+    "electron-packager": "^14.1.0",
+    "electron-rebuild": "^1.8.5"
+  },
+  "dependencies": {
+    "font-awesome-filetypes": "^2.1.0",
+    "zeromq": "^5.1.0",
+    "zerorpc": "^0.9.8"
+  }
+}
