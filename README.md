@@ -18,10 +18,10 @@ https://github.com/ThanatosDi/EpubConv_Python/releases
      - [ ] 格式橫直轉換
      - [x] 檔案包裝壓縮
      - [x] 清除暫存檔
-     - [x] 繁化姬異步處理
  - [x] 轉換引擎
      - [x] OpenCC
      - [x] zhconvert 繁化姬
+     - [x] zhconvert 繁化姬異步處理
      - [ ] GoogleTranslate
  - [x] 其他
      - [x] 自動判斷檔案編碼 
