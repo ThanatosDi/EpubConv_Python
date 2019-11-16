@@ -35,7 +35,7 @@ https://github.com/ThanatosDi/EpubConv_Python/releases
 直接將 epub 檔案拖曳至 epubconv.exe 上即可立即翻譯 epub 檔案
 # Update history 更新歷史
 詳細雜湊碼請看 release 頁面的 virustotal 結果
-* [v2.0.4](https://github.com/ThanatosDi/EpubConv_Python/releases/tag/ver2.0.4)
+* [v2.0.4](https://github.com/ThanatosDi/EpubConv_Python/releases/tag/v2.0.4)
   * 增加使用者可選設定: 是否判斷檔案格式
   * 增加使用者可選設定: 是否使用 pause 功能 
 * [v2.0.3 beta](https://github.com/ThanatosDi/EpubConv_Python/releases/tag/ver2.0.3_bata)
