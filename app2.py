@@ -10,6 +10,8 @@ import time
 import zipfile
 from configparser import ConfigParser
 
+from strtobool import strtobool
+
 from modules.console import Console
 from modules.logger import Logger
 from modules.opencc import OpenCC
@@ -51,9 +53,9 @@ class EPubConv:
             cfg.read(config, encoding=cfg_encoding)
             self.logger = Logger(
                 name='EPUB', filehandler=cfg['setting']['loglevel'], streamhandler=cfg['setting']['syslevel'], workpath=self.workpath)
-            self.logger.info('__version__', '2.0.3_bata')
+            self.logger.info('__version__', '2.0.4')
             self.logger.info(
-                '_read_config', f"already read config\nengine: {cfg['setting']['engine']}\nconverter: {cfg['setting']['converter']}\nformat: {cfg['setting']['format']}\nloglevel: {cfg['setting']['loglevel']}\nsyslevel: {cfg['setting']['syslevel']}")
+                '_read_config', f"already read config\nengine: {cfg['setting']['engine']}\nconverter: {cfg['setting']['converter']}\nformat: {cfg['setting']['format']}\nloglevel: {cfg['setting']['loglevel']}\nsyslevel: {cfg['setting']['syslevel']}\nfile_check: {cfg['other']['file_check']}\nenable_pause: {cfg['other']['enable_pause']}")
             return cfg
         else:
             self.logger.error(
@@ -114,7 +116,13 @@ class EPubConv:
         try:
             self.file_path = epub_file_path
             self.logger.info('convert', f'file path: {self.file_path}')
-            self._check(epub_file_path)
+            try:
+                if strtobool(self.cfg['other']['file_check']):
+                    self._check(epub_file_path)
+            except KeyError:
+                self.logger.warning('convert', 'miss file_check & enable_pause in config.ini')
+                self.logger.info('convert', 'still run file check.')
+                self._check(epub_file_path)
             self._unzip(epub_file_path)
             if self.convert_file_list:
                 self.logger.info(
@@ -376,4 +384,9 @@ if __name__ == "__main__":
     EPubConvert = EPubConv()
     for epub in sys.argv[1:]:
         EPubConvert.convert(epub)
-    os.system("pause")
+    try:
+        if strtobool(EPubConvert.cfg['other']['enable_pause']):
+            os.system("pause")
+    except KeyError:
+        print('請更新設定檔，缺少 file_check 及 enable_pause ')
+        os.system("pause")
