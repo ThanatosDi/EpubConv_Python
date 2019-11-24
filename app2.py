@@ -10,6 +10,7 @@ import time
 import zipfile
 from configparser import ConfigParser
 
+import cssutils
 from strtobool import strtobool
 
 from modules.console import Console
@@ -17,7 +18,8 @@ from modules.logger import Logger
 from modules.opencc import OpenCC
 from modules.utils.error import (ConfigError, FileTypeError, FileUnzipError,
                                  RequestError, ZhConvertError)
-from modules.utils.tools import encoding, get_key, replace, resource_path
+from modules.utils.tools import (add_style, encoding, get_key, opf_modify,
+                                 replace, resource_path, selectors_check)
 from modules.zhconvert import ZhConvert, ZhConvert_Bata
 
 
@@ -53,7 +55,7 @@ class EPubConv:
             cfg.read(config, encoding=cfg_encoding)
             self.logger = Logger(
                 name='EPUB', filehandler=cfg['setting']['loglevel'], streamhandler=cfg['setting']['syslevel'], workpath=self.workpath)
-            self.logger.info('__version__', '2.0.4')
+            self.logger.info('__version__', '2.0.5')
             self.logger.info(
                 '_read_config', f"already read config\nengine: {cfg['setting']['engine']}\nconverter: {cfg['setting']['converter']}\nformat: {cfg['setting']['format']}\nloglevel: {cfg['setting']['loglevel']}\nsyslevel: {cfg['setting']['syslevel']}\nfile_check: {cfg['other']['file_check']}\nenable_pause: {cfg['other']['enable_pause']}")
             return cfg
@@ -129,6 +131,7 @@ class EPubConv:
                     'convert', f'unzip file "{epub_file_path}" success and get convert file list')
                 self._convert_content(self.convert_file_list)
                 self._rename(self.convert_file_list)
+                self._format(f'{epub_file_path}_files')
                 self._zip
                 self._clean
             self.logger.info(
@@ -325,32 +328,86 @@ class EPubConv:
                     regex, f'<dc:language>zh-CN</dc:language>', fileline)
             open(content_file_path, 'w', encoding='utf-8').write(modify)
 
-    # def _format(self, file_path):
-    #     """  """
-    #     modify_files = {}
-    #     opf_tmp = []
-    #     css_tmp = []
-    #     content_tmp = []
-    #     for root, _dirs, files in os.walk(f'{file_path}_files/'):
-    #         for filename in files:
-    #             if filename.endswith('opf'):
-    #                 opf_tmp.append(filename)
-    #             if filename.endswith('css'):
-    #                 css_tmp.append(filename)
-    #             if filename.endswith(('xhtml', 'html', 'htm')):
-    #                 content_tmp.append(filename)
-    #     modify_files['opf'] = opf_tmp
-    #     modify_files['css'] = css_tmp
-    #     modify_files['content'] = content_tmp
-    #     #橫式
-    #     if self.cfg['setting']['format'].lower() == 'horizontal':
-    #         self.logger.info('_format', 'set content to horizontal')
-    #         if not any(modify_files['css']):
-    #             print('css file not found')
-    #     #直式
-    #     if self.cfg['setting']['format'].lower() == 'straight':
-    #         self.logger.info('_format', 'set content to straight')
-    #         print('直式')
+    def _format(self, file_path):
+        """ 轉換 epub 文字橫直格式
+            轉換會用到的檔案為 css(style)及content.opf
+        
+        Arguments:
+            file_path {str} -- 檔案解壓縮後資料夾的絕對路徑
+        """
+        straight = {
+            'writing-mode': 'vertical-rl',
+            '-webkit-writing-mode': 'vertical-rl',
+            '-epub-writing-mode': 'vertical-rl',
+            '-epub-line-break': 'strict',
+            'line-break': 'strict',
+            '-epub-word-break': 'normal',
+            'word-break': 'normal',
+            'margin': 0,
+            'padding': 0,
+        }
+        css_style = ''
+        css_files = []
+        content_files = []
+        for _root, _dir, _file in os.walk(file_path):
+            for f in _file:
+                if f=='content.opf':
+                    opf = os.path.join(_root, f)
+                if f.endswith('css'):
+                    css_files.append(os.path.join(_root, f))
+                if f.endswith(('html', 'htm')):
+                    content_files.append(os.path.join(_root, f))
+        if self.cfg['setting']['format'].lower()=='straight':
+            self.logger.info('_format', 'convert style to straight.')
+            regex = re.compile(r"<spine (.*)toc=\"ncx\"( .*|)>", re.IGNORECASE)
+            opf_modify(opf, regex, '<spine toc="ncx" page-progression-direction="rtl">')
+            css = selectors_check(css_files)
+            if css_files and css:
+                self.logger.debug('_format', 'find css file and find html style.')
+                CSSParser = cssutils.CSSParser()
+                parser = CSSParser.parseFile(css)
+                for selector in parser.cssRules.rulesOfType(1):
+                    if selector.selectorText=='html':
+                        for _property in straight.keys():
+                            if _property not in selector.style.keys():
+                                selector.style.setProperty(_property, value=straight[_property])
+                css_style = parser.cssText
+            else:
+                if not os.path.isdir(os.path.join(file_path, 'OEBPS/Styles')):
+                    os.makedirs(os.path.join(file_path, 'OEBPS/Styles'))
+                css = os.path.join(os.path.join(file_path, 'OEBPS/Styles'), 'EPUBConv_style.css')
+                css_style = 'html {\n'
+                for _property, value in straight.items():
+                    css_style += f'\t{_property}: {value};\n'
+                css_style += '}'
+                css_style = bytes(css_style, encoding = "utf8")
+                for content_file in content_files:
+                    css_relpath = os.path.join(os.path.relpath(os.path.dirname(css), os.path.dirname(content_file)), 'EPUBConv_style.css')
+                    add_style(f'{content_file}', css_relpath)
+            with open(css, 'wb') as f:
+                f.write(css_style)
+        elif self.cfg['setting']['format'].lower() == 'horizontal':
+            self.logger.info('_format', 'convert style to horizontal.')
+            regex = re.compile(r"<spine (.*)toc=\"ncx\"( .*|)>", re.IGNORECASE)
+            opf_modify(opf, regex, '<spine toc="ncx">')
+            css = selectors_check(css_files)
+            if css_files and css:
+                # TODO 該書中有css且也有html style
+                CSSParser = cssutils.CSSParser()
+                parser = CSSParser.parseFile(css)
+                for selector in parser.cssRules.rulesOfType(1):
+                    if selector.selectorText=='html':
+                        for _property in straight.keys():
+                            if _property in selector.style.keys():
+                                selector.style.removeProperty(_property)
+                css_style = parser.cssText
+                with open(css, 'wb') as f:
+                    f.write(css_style)
+            else:
+                # TODO 該書中沒有css或也沒有html style
+                pass
+        else:
+            pass
 
     @property
     def _clean(self):
