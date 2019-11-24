@@ -15,7 +15,7 @@ https://github.com/ThanatosDi/EpubConv_Python/releases
      - [x] 檔案名稱轉換
      - [x] 轉換 content.opf 語言標籤
      - [x] 重新命名已轉換檔案
-     - [ ] 格式橫直轉換
+     - [x] 格式橫直轉換
      - [x] 檔案包裝壓縮
      - [x] 清除暫存檔
  - [x] 轉換引擎
@@ -30,11 +30,14 @@ https://github.com/ThanatosDi/EpubConv_Python/releases
  - [x] Setting App v1.0.0
      - [x] 部分功能符合 EpubConv 2.0.3
      - [x] 所有符合 EpubConv 2.0.4+
+ - [ ] 有 UI 介面 windows 應用程式
 
 # Usage 使用
 直接將 epub 檔案拖曳至 epubconv.exe 上即可立即翻譯 epub 檔案
 # Update history 更新歷史
 詳細雜湊碼請看 release 頁面的 virustotal 結果
+* [v2.0.5](https://github.com/ThanatosDi/EpubConv_Python/releases/tag/v2.0.5)
+  * 增加內文橫直轉換功能
 * [v2.0.4](https://github.com/ThanatosDi/EpubConv_Python/releases/tag/v2.0.4)
   * 增加使用者可選設定: 是否判斷檔案格式
   * 增加使用者可選設定: 是否使用 pause 功能 
