@@ -1,5 +1,7 @@
 [![GitHub release](https://img.shields.io/github/release/Kutinging/EpubConv_Python.svg?style=plastic)](https://github.com/Kutinging/EpubConv_Python/releases)
-[![GitHub release](https://img.shields.io/github/v/release/ThanatosDi/EpubConv_Python?include_prereleases&style=plastic)](https://github.com/Kutinging/EpubConv_Python/releases)  
+[![GitHub release](https://img.shields.io/github/v/release/ThanatosDi/EpubConv_Python?include_prereleases&style=plastic)](https://github.com/Kutinging/EpubConv_Python/releases)
+[![HitCount](http://hits.dwyl.io/ThanatosDi/EpubConv_Python.svg)](http://hits.dwyl.io/ThanatosDi/EpubConv_Python)  
+
 # EPubConv_Python EPub簡繁橫直互轉 Rewrite
 <!--[![GitHub release](https://img.shields.io/github/release/ThanatosDi/EpubConv_Python.svg?style=plastic)](https://github.com/ThanatosDi/EpubConv_Python/releases)  -->
   
