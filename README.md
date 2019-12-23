@@ -38,25 +38,43 @@ https://github.com/ThanatosDi/EpubConv_Python/releases
 直接將 epub 檔案拖曳至 epubconv.exe 上即可立即翻譯 epub 檔案
 # Update history 更新歷史
 詳細雜湊碼請看 release 頁面的 virustotal 結果
-* [v2.0.5](https://github.com/ThanatosDi/EpubConv_Python/releases/tag/v2.0.5)
+
+<details>
+<summary> [v2.0.5](https://github.com/ThanatosDi/EpubConv_Python/releases/tag/v2.0.5)</summary>
+
   * 增加內文橫直轉換功能
-* [v2.0.4](https://github.com/ThanatosDi/EpubConv_Python/releases/tag/v2.0.4)
+</details>
+
+<details>
+<summary> [v2.0.4](https://github.com/ThanatosDi/EpubConv_Python/releases/tag/v2.0.4)</summary>
+  
   * 增加使用者可選設定: 是否判斷檔案格式
   * 增加使用者可選設定: 是否使用 pause 功能 
-* [v2.0.3 beta](https://github.com/ThanatosDi/EpubConv_Python/releases/tag/ver2.0.3_bata)
+</details>
+<details>
+<summary> [v2.0.3 beta](https://github.com/ThanatosDi/EpubConv_Python/releases/tag/ver2.0.3_bata)</summary>
+  
   * 新增繁化姬異步處理提升轉換效能
-* [v2.0.2](https://github.com/ThanatosDi/EpubConv_Python/releases/tag/ver2.0.2)
+</details>
+<details>
+<summary> [v2.0.2](https://github.com/ThanatosDi/EpubConv_Python/releases/tag/ver2.0.2)</summary>
+  
   * 增加繁化姬分段處理功能
   * 增加版號輸出
   * 增加繁化姬轉換錯誤時 HTTP Request status code 回傳
   * 新增 replace 函數 (目前處理 unicode 中的 '\u2029')
-* [v2.0.0](https://github.com/ThanatosDi/EpubConv_Python/releases/tag/2.0.0)
+</details>
+<details>
+<summary> [v2.0.0](https://github.com/ThanatosDi/EpubConv_Python/releases/tag/2.0.0)</summary>
+  
   * 加入繁化姬轉換引擎
   * 修改讀取檔案方法，由程式自動判斷檔案編碼(1.X.X版本為強制使用utf-8格式讀取)
   * 修改 log 記錄檔記錄功能，只會紀錄當下轉換的輸出，下次轉換時會將記錄清空重新記錄
   * 修改 config 的設定方法，讓使用者更容易設定(裡面包含幫助請記得看)
   * 修改 epub 檔案格式驗證
   * 暫時拔除橫直轉換功能
+</details>
+
 # Known Bugs 目前已知問題
 * 未知狀況下導致程式無法判斷轉換檔案的格式，導致程式直接終止
     * 目前解決辦法為停用程式自動判斷檔案格式功能
