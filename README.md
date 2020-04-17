@@ -32,8 +32,8 @@ https://github.com/ThanatosDi/EpubConv_Python/releases
  - [x] Setting App v1.0.0
      - [x] 部分功能符合 EpubConv 2.0.3
      - [x] 所有符合 EpubConv 2.0.4+
- - [ ] 有 UI 介面 windows 應用程式
-
+ - [ ] 預定使用 PyQT5 編寫其 GUI  
+ 
 # Usage 使用
 直接將 epub 檔案拖曳至 epubconv.exe 上即可立即翻譯 epub 檔案
 # Update history 更新歷史
