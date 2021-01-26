@@ -1,14 +1,11 @@
-# logger 記錄檔模組
 import logging
 import logging.config
-import sys
-import time
 import os
+import sys
 
 
 class Logger(object):
     """Logger
-
     Logger level:
         CRITICAL    50
         ERROR	    40
@@ -24,7 +21,6 @@ class Logger(object):
 
     def __init__(self, name='logger', filehandler='INFO', streamhandler='INFO', workpath=None):
         """Logger
-
         Keyword Arguments:
             name {str} -- [name of logging] (default: {'logger'})
         """
@@ -38,7 +34,7 @@ class Logger(object):
         
         # log 檔案 handler
         file_handler = logging.FileHandler(
-            f'{workpath}/epubconv.log', 'w', encoding='utf-8')
+            f'{workpath}/spider.log', 'a', encoding='utf-8')
         file_handler.setFormatter(formatter)
         file_handler.setLevel(getattr(logging, filehandler.upper()))
 
@@ -47,45 +43,42 @@ class Logger(object):
         stream_handler.setFormatter(formatter)
         stream_handler.setLevel(getattr(logging, streamhandler.upper()))
         
-        self.logger.addHandler(file_handler)
-        self.logger.addHandler(stream_handler)
+        if not self.logger.hasHandlers():
+            self.logger.addHandler(file_handler)
+            self.logger.addHandler(stream_handler)
 
-    def debug(self, function, msg):
+    def debug(self, msg):
         """ logging debug level
-
         Arguments:
             function {str} -- message of function
             msg {str} -- message
         """
-        message = f" * function: {function}, * msg: {msg}"
-        self.logger.debug(message)
+        # message = f" * function: {function}, * msg: {msg}"
+        self.logger.debug(msg)
 
-    def info(self, function, msg):
+    def info(self, msg):
         """ logging info level
-
         Arguments:
             function {str} -- message of function
             msg {str} -- message
         """
-        message = f" * function: {function}, * msg: {msg}"
-        self.logger.info(message)
+        # message = f" * function: {function}, * msg: {msg}"
+        self.logger.info(msg)
 
-    def warning(self, function, msg):
+    def warning(self, msg):
         """ logging warning level
-
         Arguments:
             function {str} -- message of function
             msg {str} -- message
         """
-        message = f" * function: {function}, * msg: {msg}"
-        self.logger.warning(message)
+        # message = f" * function: {function}, * msg: {msg}"
+        self.logger.warning(msg)
 
-    def error(self, function, msg):
+    def error(self, msg):
         """ logging error level
-
         Arguments:
             function {str} -- message of function
             msg {str} -- message
         """
-        message = f" * function: {function}, * msg: {msg}"
-        self.logger.error(message)
+        # message = f" * function: {function}, * msg: {msg}"
+        self.logger.error(msg)
