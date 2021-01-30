@@ -34,7 +34,7 @@ class Logger(object):
         
         # log 檔案 handler
         file_handler = logging.FileHandler(
-            f'{workpath}/spider.log', 'a', encoding='utf-8')
+            f'{workpath}/log', 'a', encoding='utf-8')
         file_handler.setFormatter(formatter)
         file_handler.setLevel(getattr(logging, filehandler.upper()))
 
