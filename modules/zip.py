@@ -1,6 +1,7 @@
 import os
 import zipfile as zf
 
+from .engine.opencc import OpenCC
 from .env import Env
 from .logger import Logger
 
@@ -53,12 +54,21 @@ class ZIP():
             [str]: 轉換後的檔案名稱包含語言標籤
         """
         lang = 'None'
-        if env.CONVERTER in ['s2t', 's2tw']:
-            lang = 'tc'
-        if env.CONVERTER in ['t2s', 'tw2s']:
+        # 規格化環境變數
+        converter = env.CONVERTER.replace('tw', 't')
+        opencc = OpenCC(converter)
+        # 建立文字標籤
+        if converter == 't2s':
             lang = 'sc'
+        if converter == 's2t':
+            lang = 'tc'
+        # 取得檔案資料夾絕對路徑
         path = os.path.dirname(filename)
+        # 切割名稱為 [檔案名稱, 副檔名]
         split_filename = os.path.basename(filename).split('.')
-        new_filename = os.path.join(
-            path, f'{split_filename[0]}_{lang}.{split_filename[1]}')
-        return new_filename
+        # 經過 opencc 轉換後的檔案名稱
+        new_filename = opencc.convert(split_filename[0])
+        # join 檔案資料夾絕對路徑、檔案名稱
+        new_absfilename = os.path.join(
+            path, f'{new_filename}_{lang}.{split_filename[1]}')
+        return new_absfilename
