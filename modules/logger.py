@@ -2,6 +2,7 @@ import logging
 import logging.config
 import os
 import sys
+from logging import handlers
 
 
 class Logger(object):
@@ -34,9 +35,14 @@ class Logger(object):
         
         # log 檔案 handler
         file_handler = logging.FileHandler(
-            f'{workpath}/log', 'a', encoding='utf-8')
+            f'{workpath}/app.log', 'a', encoding='utf-8')
         file_handler.setFormatter(formatter)
         file_handler.setLevel(getattr(logging, filehandler.upper()))
+        # file_handler = handlers.TimedRotatingFileHandler(
+        #     filename=f'{workpath}/app.log', when='D', backupCount=5, encoding='utf-8'
+        # )
+        # file_handler.setFormatter(formatter)
+        # file_handler.setLevel(getattr(logging, filehandler.upper()))
 
         # command handler
         stream_handler = logging.StreamHandler()
