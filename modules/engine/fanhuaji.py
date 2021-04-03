@@ -22,7 +22,9 @@ class FanhuajiEngine():
     async def _async_request(self, session, endpoint: str, payload: dict):
         async with session.get(f'{API}{endpoint}', data=payload) as response:
             if response.status == 200:
-                return await response.json()
+                content = await response.json()
+                await session.close()
+                return content
             raise AsyncRequestError(
                 f'zhconvert AsyncRequest error. status code: {response.status}')
 
