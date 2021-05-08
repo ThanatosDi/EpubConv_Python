@@ -10,11 +10,11 @@ chardet==3.0.4
 cssutils==1.0.2
 idna==2.10
 multidict==5.1.0
-pyinstaller-hooks-contrib==2020.11
+pyinstaller-hooks-contrib==2021.1
 pyinstaller==4.2
 python-dotenv==0.15.0
 requests==2.25.1
-soupsieve==2.2 ; python_version >= '3.0'
+soupsieve==2.2.1 ; python_version >= '3.0'
 typing-extensions==3.7.4.3
-urllib3==1.26.3
+urllib3==1.26.4
 yarl==1.6.3
