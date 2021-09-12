@@ -2,10 +2,10 @@
 aiohttp==3.7.4
 altgraph==0.17
 async-timeout==3.0.1
-attrs==20.3.0
+attrs==21.2.0
 beautifulsoup4==4.9.3
 bs4==0.0.1
-certifi==2020.12.5
+certifi==2021.5.30
 chardet==3.0.4
 cssutils==1.0.2
 idna==2.10
@@ -15,6 +15,6 @@ pyinstaller==4.2
 python-dotenv==0.15.0
 requests==2.25.1
 soupsieve==2.2.1 ; python_version >= '3.0'
-typing-extensions==3.7.4.3
-urllib3==1.26.4
+typing-extensions==3.10.0.0
+urllib3==1.26.5
 yarl==1.6.3
