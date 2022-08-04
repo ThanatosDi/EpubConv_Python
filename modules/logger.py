@@ -2,7 +2,11 @@ import logging
 import logging.config
 import os
 import sys
-from logging import handlers
+
+BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = range(8)
+RESET_SEQ = "\033[0m"
+COLOR_SEQ = "\033[1;%dm"
+BOLD_SEQ = "\033[1m"
 
 
 class Logger(object):
@@ -29,29 +33,38 @@ class Logger(object):
         self.logger = logging.getLogger(name)
         self.logger.setLevel(logging.DEBUG)
 
-        formatter = logging.Formatter('%(asctime)s %(name)s %(levelname)s : %(message)s')
+        formatter = logging.Formatter(
+            '%(asctime)s %(name)-8s %(levelname)-8s : %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
         if not workpath:
-            workpath = os.path.abspath(os.path.join(sys.argv[0], os.path.pardir))
-        
+            workpath = os.path.abspath(
+                os.path.join(sys.argv[0], os.path.pardir))
+
         # log 檔案 handler
-        file_handler = logging.FileHandler(
-            f'{workpath}/app.log', 'a', encoding='utf-8')
+        file_handler = logging.handlers.TimedRotatingFileHandler(
+            f'{workpath}/storages/logs/app.log', encoding='utf-8', when='D', backupCount=3)
         file_handler.setFormatter(formatter)
         file_handler.setLevel(getattr(logging, filehandler.upper()))
-        # file_handler = handlers.TimedRotatingFileHandler(
-        #     filename=f'{workpath}/app.log', when='D', backupCount=5, encoding='utf-8'
-        # )
-        # file_handler.setFormatter(formatter)
-        # file_handler.setLevel(getattr(logging, filehandler.upper()))
 
-        # command handler
-        stream_handler = logging.StreamHandler()
-        stream_handler.setFormatter(formatter)
-        stream_handler.setLevel(getattr(logging, streamhandler.upper()))
-        
+        # stdout handler
+        self.stream_handler = logging.StreamHandler()
+        self.stream_handler.setFormatter(formatter)
+        self.stream_handler.setLevel(getattr(logging, streamhandler.upper()))
+
         if not self.logger.hasHandlers():
             self.logger.addHandler(file_handler)
-            self.logger.addHandler(stream_handler)
+            self.logger.addHandler(self.stream_handler)
+
+    def levelColor(self, level):
+        default_color = {
+            'WARNING': MAGENTA,
+            'INFO': GREEN,
+            'DEBUG': CYAN,
+            'CRITICAL': YELLOW,
+            'ERROR': RED
+        }
+        color = default_color.get(level.upper(), WHITE)
+        formatter = f'%(asctime)s %(name)-8s {COLOR_SEQ % (30+color)}%(levelname)-8s{RESET_SEQ} : %(message)s'
+        return formatter
 
     def debug(self, msg):
         """ logging debug level
@@ -59,7 +72,9 @@ class Logger(object):
             function {str} -- message of function
             msg {str} -- message
         """
-        # message = f" * function: {function}, * msg: {msg}"
+        formatter = logging.Formatter(self.levelColor(
+            'debug'), datefmt='%Y-%m-%d %H:%M:%S')
+        self.stream_handler.setFormatter(formatter)
         self.logger.debug(msg)
 
     def info(self, msg):
@@ -69,6 +84,9 @@ class Logger(object):
             msg {str} -- message
         """
         # message = f" * function: {function}, * msg: {msg}"
+        formatter = logging.Formatter(self.levelColor(
+            'info'), datefmt='%Y-%m-%d %H:%M:%S')
+        self.stream_handler.setFormatter(formatter)
         self.logger.info(msg)
 
     def warning(self, msg):
@@ -78,6 +96,9 @@ class Logger(object):
             msg {str} -- message
         """
         # message = f" * function: {function}, * msg: {msg}"
+        formatter = logging.Formatter(self.levelColor(
+            'warning'), datefmt='%Y-%m-%d %H:%M:%S')
+        self.stream_handler.setFormatter(formatter)
         self.logger.warning(msg)
 
     def error(self, msg):
@@ -87,4 +108,13 @@ class Logger(object):
             msg {str} -- message
         """
         # message = f" * function: {function}, * msg: {msg}"
+        formatter = logging.Formatter(self.levelColor(
+            'error'), datefmt='%Y-%m-%d %H:%M:%S')
+        self.stream_handler.setFormatter(formatter)
         self.logger.error(msg)
+
+    def critical(self, msg):
+        formatter = logging.Formatter(self.levelColor(
+            'critical'), datefmt='%Y-%m-%d %H:%M:%S')
+        self.stream_handler.setFormatter(formatter)
+        self.logger.critical(msg)
