@@ -5,15 +5,15 @@ name = "pypi"
 
 [packages]
 aiohttp = "*"
-bs4 = "*"
 cssutils = "*"
-pyinstaller = "*"
 requests = "*"
 python-dotenv = "*"
+opencc = "*"
 
 [dev-packages]
 autopep8 = "*"
 pytest = "*"
+pyinstaller = "*"
 
 [requires]
-python_version = "3.8"
+python_version = "3.10"
