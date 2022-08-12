@@ -73,17 +73,17 @@ class FanhuajiEngine(Engine):
             chunks.append(content[50_000*i:50_000*(i+1)])
         return chunks
 
-    def __text(self, response: requests.Response) -> Union[str, None]:
+    def __text(self, response: requests.Response) -> str:
         """取得繁化姬 API 回傳的文字內容
 
         Args:
             response (Response): 回應結果
 
         Returns:
-            None | str: _description_
+            str: _description_
         """
         if response['code'] != 0:
-            return None
+            return ''
         return response['data']['text']
 
     def convert(self, **kwargs):
@@ -143,7 +143,7 @@ class FanhuajiEngine(Engine):
         if error_keys:
             raise FanhuajiInvalidKey(f"Invalid key: {', '.join(error_keys)}")
         if kwargs.get('text', None) is None or kwargs.get('converter', None) is None:
-            raise FanhuajiMissNecessarykey(f"Miss necessary key")
+            raise FanhuajiMissNecessaryKey(f"Miss necessary key")
         response = self.__request(kwargs)
         return self.__text(response)
 
