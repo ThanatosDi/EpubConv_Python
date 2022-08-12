@@ -19,7 +19,7 @@ def __engine() -> str:
     return engine
 
 def __converter() -> str:
-    ALLOW = ['t2s', 's2t', 'tw2s', 's2tw']
+    ALLOW = ['t2s', 's2t', 'tw2s', 's2tw', 'tw2sp', 's2twp']
     converter = config.get('converter', 's2t').lower()
     if converter not in ALLOW:
         logger.warning(f'轉換器不存在: {converter}，故使用預設轉換器: s2t')
