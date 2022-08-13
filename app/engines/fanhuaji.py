@@ -4,7 +4,7 @@ from typing import Union
 import aiohttp
 import requests
 
-from engines.engineABC import Engine
+from app.engines.engineABC import Engine
 
 API = 'https://api.zhconvert.org'
 endpoint = '/convert'
@@ -13,6 +13,25 @@ endpoint = '/convert'
 class FanhuajiEngine(Engine):
     def __init__(self):
         ...
+
+    def __format_converter(self, converter: str) -> str:
+        """轉換器格式化，將 config.ini 的 converter 轉換成繁化姬 API 可接受的格式
+
+        Args:
+            converter (str): config.ini 的 converter
+
+        Returns:
+            str: 繁化姬 API 可接受的格式
+        """
+        MAPPING = {
+            't2s': 'Simplified',
+            's2t': 'Traditional',
+            'tw2s': 'Simplified',
+            's2tw': 'Traditional',
+            'tw2sp': 'China',
+            's2twp': 'Taiwan',
+        }
+        return MAPPING.get(converter, None)
 
     def __request(self, payload: dict) -> Union[dict, None]:
         """透過繁化姬 API 執行同步處理轉換文字
@@ -144,6 +163,7 @@ class FanhuajiEngine(Engine):
             raise FanhuajiInvalidKey(f"Invalid key: {', '.join(error_keys)}")
         if kwargs.get('text', None) is None or kwargs.get('converter', None) is None:
             raise FanhuajiMissNecessaryKey(f"Miss necessary key")
+        kwargs['converter'] = self.__format_converter(kwargs['converter'])
         response = self.__request(kwargs)
         return self.__text(response)
 
@@ -204,7 +224,7 @@ class FanhuajiEngine(Engine):
         if error_keys:
             raise FanhuajiInvalidKey(f"Invalid key: {', '.join(error_keys)}")
         content = kwargs.get('text', None)
-        converter = kwargs.get('converter', None)
+        converter = self.__format_converter(kwargs.get('converter', None))
         if content is None or converter is None:
             raise FanhuajiMissNecessaryKey(f"Miss necessary key")
         connector = aiohttp.TCPConnector(limit=10)

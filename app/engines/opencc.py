@@ -1,5 +1,5 @@
 import opencc
-from engines.engineABC import Engine
+from app.engines.engineABC import Engine
 
 
 class OpenCCEngine(Engine):

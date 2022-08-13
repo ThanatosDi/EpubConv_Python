@@ -1,6 +1,6 @@
 from dotenv import dotenv_values
 
-from modules.logger import Logger
+from app.modules.logger import Logger
 
 config = dotenv_values("config.ini")
 logger = Logger(

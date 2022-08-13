@@ -1,10 +1,9 @@
 import logging
 import os
-import pathlib
 import zipfile as zf
 
-from engines.opencc import OpenCCEngine
-from modules import config
+from app.engines.opencc import OpenCCEngine
+from app.modules import config
 
 logger = logging.getLogger('Zip')
 opencc = OpenCCEngine()
@@ -48,6 +47,17 @@ class ZIP():
             os.mkdir(PATH)
         for names in zipfile.namelist():
             zipfile.extract(names, PATH)
+
+    def zipfile(epubAbsolutePath: str) -> zf.ZipFile:
+        """取得 epub 的 zipfile 物件
+
+        Args:
+            epubAbsolutePath (str): 檔案的絕對路徑名稱
+
+        Returns:
+            zf.ZipFile: zipfile 物件
+        """
+        return zf.ZipFile(epubAbsolutePath)
 
     @staticmethod
     def convert_filename(epubAbsolutePath: str) -> str:
