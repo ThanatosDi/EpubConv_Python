@@ -22,9 +22,9 @@ class Logger(object):
 
     # def __init__(self, name='logger', level=logging.DEBUG):
     # logging.basicConfig(format='%(asctime)s %(levelname)s :\n%(message)s',
-    #                    level=level, datefmt='%Y-%m-%d %H:%M:%S', filename='DBAPI.log', filemode='w')
+    #                    level=level, datefmt='%Y-%m-%d %H:%M:%S', filename='DB_API.log', filemode='w')
 
-    def __init__(self, name='logger', filehandler='INFO', streamhandler='INFO', workpath=None):
+    def __init__(self, name='logger', filehandler='INFO', streamhandler='INFO', workPath=None):
         """Logger
         Keyword Arguments:
             name {str} -- [name of logging] (default: {'logger'})
@@ -35,13 +35,13 @@ class Logger(object):
 
         formatter = logging.Formatter(
             '%(asctime)s %(name)-8s %(levelname)-8s : %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
-        if not workpath:
-            workpath = os.path.abspath(
+        if not workPath:
+            workPath = os.path.abspath(
                 os.path.join(sys.argv[0], os.path.pardir))
 
         # log 檔案 handler
         file_handler = logging.handlers.TimedRotatingFileHandler(
-            f'{workpath}/storages/logs/app.log', encoding='utf-8', when='D', backupCount=3)
+            f'{workPath}/storages/logs/app.log', encoding='utf-8', when='D', backupCount=3)
         file_handler.setFormatter(formatter)
         file_handler.setLevel(getattr(logging, filehandler.upper()))
 

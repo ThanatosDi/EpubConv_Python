@@ -29,8 +29,8 @@ class ZIP():
         saveAs = os.path.join(dirname, new_filename)
         with zf.ZipFile(saveAs, 'w', zf.zlib.DEFLATED) as z_f:
             for file in file_list:
-                arcname = file[len(f'{epubAbsolutePath}_files'):]
-                z_f.write(file, arcname)
+                arcName = file[len(f'{epubAbsolutePath}_files'):]
+                z_f.write(file, arcName)
 
     @staticmethod
     def decompress(epubAbsolutePath: str) -> None:
