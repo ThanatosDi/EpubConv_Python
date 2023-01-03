@@ -5,6 +5,7 @@ import aiohttp
 import requests
 
 from app.engines.engineABC import Engine
+from app.Enums.ConverterEnum import ConverterEnum
 
 API = 'https://api.zhconvert.org'
 endpoint = '/convert'
@@ -14,7 +15,7 @@ class FanhuajiEngine(Engine):
     def __init__(self):
         ...
 
-    def __format_converter(self, converter: str) -> str:
+    def __format_converter(self, converter: str) -> str | None:
         """轉換器格式化，將 config.ini 的 converter 轉換成繁化姬 API 可接受的格式
 
         Args:
@@ -23,15 +24,10 @@ class FanhuajiEngine(Engine):
         Returns:
             str: 繁化姬 API 可接受的格式
         """
-        MAPPING = {
-            't2s': 'Simplified',
-            's2t': 'Traditional',
-            'tw2s': 'Simplified',
-            's2tw': 'Traditional',
-            'tw2sp': 'China',
-            's2twp': 'Taiwan',
-        }
-        return MAPPING.get(converter, None)
+        __converter = getattr(ConverterEnum.fanhuaji.value, converter, None)
+        if __converter == None:
+            return 'Traditional'
+        return __converter.value
 
     def __request(self, payload: dict) -> Union[dict, None]:
         """透過繁化姬 API 執行同步處理轉換文字
@@ -164,6 +160,7 @@ class FanhuajiEngine(Engine):
         if kwargs.get('text', None) is None or kwargs.get('converter', None) is None:
             raise FanhuajiMissNecessaryKey(f"Miss necessary key")
         kwargs['converter'] = self.__format_converter(kwargs['converter'])
+        kwargs['jpTextConversionStrategy'] = 'protect'
         response = self.__request(kwargs)
         return self.__text(response)
 
@@ -227,6 +224,7 @@ class FanhuajiEngine(Engine):
         converter = self.__format_converter(kwargs.get('converter', None))
         if content is None or converter is None:
             raise FanhuajiMissNecessaryKey(f"Miss necessary key")
+        # 限制異步請求的速度
         connector = aiohttp.TCPConnector(limit=10)
         session = aiohttp.ClientSession(connector=connector)
         chunks = self.__slice(kwargs.get('text'))
@@ -234,7 +232,8 @@ class FanhuajiEngine(Engine):
         for chunk in chunks:
             payload = {
                 'text': chunk,
-                'converter': converter
+                'converter': converter,
+                'jpTextConversionStrategy': 'protect',
             }
             response = await self.__async_request(session, payload)
             texts.append(self.__text(response))
