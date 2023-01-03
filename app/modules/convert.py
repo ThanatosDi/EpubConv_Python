@@ -2,8 +2,8 @@ import asyncio
 
 from app.engines.fanhuaji import FanhuajiEngine
 from app.engines.opencc import OpenCCEngine
-
-from app.modules import config
+from app.Enums.EngineEnum import EngineEnum
+from config import config
 
 opencc = OpenCCEngine()
 fanhuaji = FanhuajiEngine()
@@ -18,11 +18,11 @@ class Convert():
             'converter': config.CONVERTER,
             'text': content,
         }
-        if config.ENGINE == 'opencc':
+        if config.ENGINE == EngineEnum.opencc.value:
             return opencc.convert(**params)
-        if config.ENGINE == 'fanhuaji':
+        if config.ENGINE == EngineEnum.fanhuaji.value:
             return fanhuaji.convert(**params)
-        if config.ENGINE == 'fanhuaji_async':
+        if config.ENGINE == EngineEnum.fanhuaji_async.value:
             asyncio.set_event_loop_policy(
                 asyncio.WindowsSelectorEventLoopPolicy())
             return asyncio.run(fanhuaji.async_convert(**params))
