@@ -1,4 +1,4 @@
-from engines.opencc import OpenCCEngine
+from app.engines.opencc import OpenCCEngine
 
 
 class TestOpenCC():
