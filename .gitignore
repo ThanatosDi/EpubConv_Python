@@ -110,3 +110,6 @@ venv.bak/
 *.xhtml
 modules.bak/
 test.py
+OpenCC/
+storages/logs/*
+!.gitkeep
