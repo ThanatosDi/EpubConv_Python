@@ -5,8 +5,8 @@ from config import config
 
 
 class OPF():
-    def __init__(self, opfAbsolutePath: str):
-        self.opfAbsolutePath = opfAbsolutePath
+    def __init__(self, opf_absolute_path: str):
+        self.opf_absolute_path = opf_absolute_path
 
     def language(self) -> None:
         MAPPING = {
@@ -18,7 +18,7 @@ class OPF():
         for __language, __converter in MAPPING.items():
             if config.CONVERTER in __converter:
                 language = __language
-        content = open(self.opfAbsolutePath, encoding='utf-8').read()
+        content = open(self.opf_absolute_path, encoding='utf-8').read()
         content = re.sub(
             regex, f'<dc:language>{language}</dc:language>', content)
-        open(self.opfAbsolutePath, 'w', encoding='utf-8').write(content)
+        open(self.opf_absolute_path, 'w', encoding='utf-8').write(content)
