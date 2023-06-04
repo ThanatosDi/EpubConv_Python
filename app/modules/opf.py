@@ -1,7 +1,7 @@
 # Open Packaging Format
 import re
 
-from app.modules import config
+from config import config
 
 
 class OPF():
