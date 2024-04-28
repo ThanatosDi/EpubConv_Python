@@ -4,7 +4,8 @@ from typing import Union
 import aiohttp
 import requests
 
-from app.engines.engineABC import Engine
+from app import __VERSION__
+from app.Engines.engineABC import Engine
 from app.Enums.ConverterEnum import ConverterEnum
 
 API = 'https://api.zhconvert.org'
@@ -44,20 +45,37 @@ class FanhuajiEngine(Engine):
         Returns:
             dict | None: _description_
         """
-        with requests.get(API+endpoint, data=payload) as response:
-            if response.status_code == 200:
-                return response.json()
-            raise response.raise_for_status()
+        if payload.get('text', None) != None:
+            with requests.get(
+                API+endpoint,
+                data=payload,
+                headers={'User-Agent': f'EpubConv_Python/{__VERSION__}'}
+            ) as response:
+                if response.status_code == 200:
+                    return response.json()
+                raise response.raise_for_status()
+        if (chapters := payload.get('chapters', None)) != None:
+            for index, chapter in enumerate(chapters):
+                chapter_payload = {
+                    'text': chapter['content'],
+                    'converter': payload['converter'],
+                    'jpTextConversionStrategy': 'protect',
+                }
+                with requests.get(API+endpoint, data=chapter_payload) as response:
+                    if response.status_code == 200:
+                        chapters[index]['content'] = (
+                            response.json()['data']['text'])
+            return chapters
 
-    async def __async_request(self, session: aiohttp.ClientSession, payload: dict) -> Union[dict, None]:
+    async def __async_request(self, session: aiohttp.ClientSession, payload: dict) -> str:
         """透過繁化姬 API 執行異步處理轉換文字
 
         Args:
             session (aiohttp.ClientSession): aiohttp 的 session
             payload (dict): {
-                            'text': '文字',
-                            'converter': '轉換器'
-                        }
+                'text': '文字',
+                'converter': '轉換器'
+            }
 
         Raises:
             response.raise_for_status: 請求失敗丟出例外
@@ -65,13 +83,25 @@ class FanhuajiEngine(Engine):
         Returns:
             dict | None: _description_
         """
-        async with session.get(f'{API+endpoint}', data=payload) as response:
-            if response.status == 200:
-                content = await response.json()
-                await asyncio.sleep(0.5)
-                await session.close()
-                return content
-            raise response.raise_for_status()
+        if payload.get('text', None) != None:
+            chunks = self.__slice(payload['text'])
+            content: str = ''
+            for chunk in chunks:
+                data = {
+                    'text': chunk,
+                    'converter': payload['converter'],
+                    'jpTextConversionStrategy': 'protect',
+                }
+                async with session.get(
+                    f'{API+endpoint}',
+                    data=data,
+                    headers={'User-Agent': f'EpubConv_Python/{__VERSION__}'}
+                ) as response:
+                    if response.status != 200:
+                        raise response.raise_for_status()
+                    result = await response.json()
+                    content += result['data']['text']
+            return content
 
     def __slice(self, content: str) -> list[str]:
         """文字內容每 50,000 字進行一次分塊處理
@@ -80,26 +110,13 @@ class FanhuajiEngine(Engine):
             content ([str]): 文字內容
 
         Returns:
-            Optional[List[str]]: 回傳為 list 且裡面為分塊後的 str
+            list[str]: 回傳為 list 且裡面為分塊後的 str
         """
         chunks = []
         chunks_count = len(content)//50_000+1
         for i in range(0, chunks_count):
             chunks.append(content[50_000*i:50_000*(i+1)])
         return chunks
-
-    def __text(self, response: requests.Response) -> str:
-        """取得繁化姬 API 回傳的文字內容
-
-        Args:
-            response (Response): 回應結果
-
-        Returns:
-            str: _description_
-        """
-        if response['code'] != 0:
-            return ''
-        return response['data']['text']
 
     def convert(self, **kwargs):
         """繁化姬同步轉換
@@ -144,6 +161,7 @@ class FanhuajiEngine(Engine):
         """
         ALLOW_KEYS = [
             'text',
+            'chapters',
             'converter',
             'ignoreTextStyles',
             'jpTextStyles',
@@ -157,12 +175,12 @@ class FanhuajiEngine(Engine):
         error_keys = [key for key in kwargs.keys() if key not in ALLOW_KEYS]
         if error_keys:
             raise FanhuajiInvalidKey(f"Invalid key: {', '.join(error_keys)}")
-        if kwargs.get('text', None) is None or kwargs.get('converter', None) is None:
-            raise FanhuajiMissNecessaryKey(f"Miss necessary key")
+        if (kwargs.get('text', None) == None and kwargs.get('chapters', None) == None) or kwargs.get('converter', None) == None:
+            raise FanhuajiMissNecessaryKey("Miss necessary key")
         kwargs['converter'] = self.__format_converter(kwargs['converter'])
         kwargs['jpTextConversionStrategy'] = 'protect'
         response = self.__request(kwargs)
-        return self.__text(response)
+        return response
 
     async def async_convert(self, **kwargs):
         """繁化姬異步轉換
@@ -207,6 +225,7 @@ class FanhuajiEngine(Engine):
         """
         ALLOW_KEYS = [
             'text',
+            'chapters',
             'converter',
             'ignoreTextStyles',
             'jpTextStyles',
@@ -220,24 +239,25 @@ class FanhuajiEngine(Engine):
         error_keys = [key for key in kwargs.keys() if key not in ALLOW_KEYS]
         if error_keys:
             raise FanhuajiInvalidKey(f"Invalid key: {', '.join(error_keys)}")
-        content = kwargs.get('text', None)
+        chapters = kwargs.get('chapters', None)
+        chapter_list = [chapter['path'] for chapter in chapters]
         converter = self.__format_converter(kwargs.get('converter', None))
-        if content is None or converter is None:
-            raise FanhuajiMissNecessaryKey(f"Miss necessary key")
         # 限制異步請求的速度
-        connector = aiohttp.TCPConnector(limit=10)
+        connector = aiohttp.TCPConnector(
+            limit=10, limit_per_host=5, force_close=True)
         session = aiohttp.ClientSession(connector=connector)
-        chunks = self.__slice(kwargs.get('text'))
-        texts = []
-        for chunk in chunks:
+        tasks = []
+        for chapter in chapters:
             payload = {
-                'text': chunk,
+                'text': chapter['content'],
                 'converter': converter,
-                'jpTextConversionStrategy': 'protect',
             }
-            response = await self.__async_request(session, payload)
-            texts.append(self.__text(response))
-        return ''.join(texts)
+            tasks.append(self.__async_request(session, payload))
+        result = await asyncio.gather(*tasks)
+        merged_result = [{'path': path, 'content': content}
+                         for path, content in zip(chapter_list, result)]
+        await session.close()
+        return merged_result
 
 
 class RequestError(Exception):
