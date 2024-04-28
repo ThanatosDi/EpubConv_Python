@@ -2,11 +2,12 @@ import logging
 import os
 import zipfile as zf
 
-from app.engines.opencc import OpenCCEngine
-from app.Enums.ConverterEnum import ConverterEnum
-from config import config
+from loguru import logger
 
-logger = logging.getLogger('Zip')
+from app.Engines.opencc import OpenCCEngine
+from app.Enums.ConverterEnum import ConverterEnum, FilenameConverter
+from config.config import Config
+
 opencc = OpenCCEngine()
 
 
@@ -49,6 +50,7 @@ class ZIP():
         for names in zipfile.namelist():
             zipfile.extract(names, PATH)
 
+    @staticmethod
     def zipfile(epub_absolute_path: str) -> zf.ZipFile:
         """取得 epub 的 zipfile 物件
 
@@ -70,11 +72,12 @@ class ZIP():
         Returns:
             str: 轉換後的檔案名稱
         """
-        converter = getattr(ConverterEnum.filename.value,
-                            config.CONVERTER, None)
+        converter: FilenameConverter = getattr(ConverterEnum.filename.value,
+                                               Config.CONVERTER, None)
         if converter is None:
             converter = 's2t'
         # 僅取得檔案名稱不含路徑
         filename_with_extension = os.path.basename(epub_absolute_path)
-        new_filename = opencc.convert(converter, filename_with_extension)
+        new_filename = opencc.filename_convert(
+            converter.value, filename_with_extension)
         return new_filename
