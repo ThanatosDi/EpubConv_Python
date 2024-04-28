@@ -1,7 +1,7 @@
 # Open Packaging Format
 import re
 
-from config import config
+from config.config import Config
 
 
 class OPF():
@@ -16,7 +16,7 @@ class OPF():
         regex = re.compile(
             r"<dc:language>[\S]*</dc:language>", re.IGNORECASE)
         for __language, __converter in MAPPING.items():
-            if config.CONVERTER in __converter:
+            if Config.CONVERTER in __converter:
                 language = __language
         content = open(self.opf_absolute_path, encoding='utf-8').read()
         content = re.sub(
