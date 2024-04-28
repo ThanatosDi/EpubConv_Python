@@ -1,7 +1,7 @@
 import logging
 import os
 
-logger = logging.getLogger('ReNamer')
+from loguru import logger
 
 
 class ReNamer():
