@@ -1,47 +1,69 @@
-from dotenv import dotenv_values
+import os
+from typing import Union, get_type_hints
 
-from app.Enums.ConverterEnum import ConverterEnum
-from app.Enums.EngineEnum import EngineEnum
-from app.Enums.FormatEnum import FormatEnum
-from app.modules.logger import Logger
+from dotenv import load_dotenv
 
-config = dotenv_values("config.ini")
-logger = Logger(
-    'Setting configuration',
-    config.get('log_level', 'debug').upper(),
-    config.get('syslog_level', 'info').upper(),
-)
+load_dotenv("config.ini")
 
 
-def __engine() -> str:
-    engine = config.get('engine', 'opencc').lower()
-    if not EngineEnum.has_value(engine):
-        logger.warning(f'轉換引擎不存在: {engine}，故使用預設引擎: opencc')
-        config['engine'] = 'opencc'
-        return 'opencc'
-    return engine
+class AppConfigError(Exception):
+    pass
 
 
-def __converter() -> str:
-    converter = config.get('converter', 's2t').lower()
-    if not ConverterEnum.converter.value.has_name(converter):
-        logger.warning(f'轉換器不存在: {converter}，故使用預設轉換器: s2t')
-        config['converter'] = 's2t'
-        return 's2t'
-    return converter
+def _parse_bool(val: Union[str, bool]) -> bool:  # pylint: disable=E1136
+    return val if isinstance(val, bool) else val.lower() in ['true', 'yes', '1']
+    # return val if type(val) == bool else val.lower() in ['true', 'yes', '1']
+
+# AppConfig class with required fields, default values, type checking, and typecasting for int and bool values
 
 
-def __format() -> str:
-    _format = config.get('format', 'horizontal').lower()
-    if not FormatEnum.has_value(_format):
-        logger.warning(f'格式不存在: {_format}，故使用預設格式: horizontal(橫書)')
-        config['format'] = 'horizontal'
-        return 'horizontal'
-    return _format
+class AppConfig:
+    ENGINE: str
+    CONVERTER: str
+    FORMAT: str = 'horizontal'
+    LOGLEVEL: str = 'INFO'
+    STDLEVEL: str = 'INFO'
+    ASYNC_LIMIT: int = 5
+    ASYNC_LIMIT_PER_HOST: int = 10
+    FILE_CHECK: bool = False
+    ENABLE_PAUSE: bool = False
+
+    """
+    Map environment variables to class fields according to these rules:
+      - Field won't be parsed unless it has a type annotation
+      - Field will be skipped if not in all caps
+      - Class field and environment variable name are the same
+    """
+
+    def __init__(self, env):
+        for field in self.__annotations__:
+            if not field.isupper():
+                continue
+
+            # Raise AppConfigError if required field not supplied
+            default_value = getattr(self, field, None)
+            if default_value is None and env.get(field) is None:
+                raise AppConfigError('The {} field is required'.format(field))
+
+            # Cast env var value to expected type and raise AppConfigError on failure
+            try:
+                var_type = get_type_hints(AppConfig)[field]
+                if var_type == bool:
+                    value = _parse_bool(env.get(field, default_value))
+                else:
+                    value = var_type(env.get(field, default_value))
+
+                self.__setattr__(field, value)
+            except ValueError:
+                raise AppConfigError('Unable to cast value of "{}" to type "{}" for "{}" field'.format(
+                    env[field],
+                    var_type,
+                    field
+                ))
+
+    def __repr__(self):
+        return str(self.__dict__)
 
 
-ENGINE = __engine()
-CONVERTER = __converter()
-FORMAT = __format()
-LOGLEVEL = config.get('loglevel', 'debug').upper()
-STDLEVEL = config.get('stdlevel', 'info').upper()
+# Expose Config object for app to import
+Config = AppConfig(os.environ)
