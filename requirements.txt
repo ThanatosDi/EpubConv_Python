@@ -15,6 +15,6 @@ pyinstaller==4.2
 python-dotenv==0.15.0
 requests==2.31.0
 soupsieve==2.2.1 ; python_version >= '3.0'
-typing-extensions==3.10.0.0
+typing-extensions==3.10.0.2
 urllib3==1.26.5
 yarl==1.6.3
