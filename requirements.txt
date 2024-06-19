@@ -4,7 +4,7 @@ altgraph==0.17
 async-timeout==3.0.1
 attrs==21.2.0
 beautifulsoup4==4.9.3
-bs4==0.0.1
+bs4==0.0.2
 certifi==2022.12.7
 chardet==3.0.4
 cssutils==1.0.2
