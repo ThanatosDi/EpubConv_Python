@@ -2,7 +2,7 @@
 aiohttp==3.7.4
 altgraph==0.17
 async-timeout==3.0.1
-attrs==21.2.0
+attrs==21.4.0
 beautifulsoup4==4.9.3
 bs4==0.0.1
 certifi==2022.12.7
