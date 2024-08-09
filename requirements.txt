@@ -1,5 +1,5 @@
 -i https://pypi.org/simple/
-aiohttp==3.7.4
+aiohttp==3.10.2
 altgraph==0.17
 async-timeout==3.0.1
 attrs==21.2.0
