@@ -1,36 +1,54 @@
-import os
-import pathlib
 import sys
 
-from modules import config
-from modules.convert import Convert
-from modules.logger import Logger
-from modules.opf import OPF
-from modules.zip import ZIP
+from loguru import logger
 
-main = Logger(
-    'EpubConv',
-    config.LOGLEVEL,
-    config.STDLEVEL,
+from app import __VERSION__
+from app.Modules.epubconv import EPUBConv
+from config.config import Config
+
+logger.configure(
+    handlers=[
+        {"sink": sys.stdout, "level": Config.STDLEVEL.upper()},
+        {
+            "sink": 'storages/logs/app_{time:YYYY-MM-DD}.log',
+            "level": Config.LOGLEVEL.upper(),
+            "format": '{time} {level} {message}',
+            "rotation": '00:00',
+            "enqueue": True
+        }
+    ]
 )
 
-zip = Logger(
-    'Zip',
-    config.LOGLEVEL,
-    config.STDLEVEL,
+logger.info(
+    f'''
+  ______             _      _____
+ |  ____|           | |    / ____|
+ | |__   _ __  _   _| |__ | |     ___  _ ____   __
+ |  __| | '_ \| | | | '_ \| |    / _ \| '_ \ \ / /
+ | |____| |_) | |_| | |_) | |___| (_) | | | \ V /
+ |______| .__/ \__,_|_.__/ \_____\___/|_| |_|\_/
+        | |
+        |_|
+ v{__VERSION__}'''
 )
 
-
-class EPUBConv():
-    def __init__(self):
-        self.workPath = os.path.abspath(
-            os.path.join(sys.argv[0], os.path.pardir))
-
-
-    def EPUBConv(epubAbsolutePath: str) -> None:
-        epubAbsolutePath = pathlib.Path(repr(epubAbsolutePath).strip("'"))
-        ZIP.decompress(epubAbsolutePath)
-
+logger.debug(Config)
 
 if __name__ == '__main__':
-    ...
+    for epub_path in sys.argv[1:]:
+        epubconv = EPUBConv(epub_path)
+        epubconv.epub_extract()
+        content_files = epubconv.epub_file.content_files
+        css_files = epubconv.epub_file.css_files
+        opf_file = epubconv.epub_file.opf_file
+        epubconv.content_convert(content_files)
+        epubconv.opf_convert(opf_file)
+        epubconv.file_rename(content_files)
+        epubconv.writing_format(
+            opf_path=opf_file,
+            epub_extract_path=epubconv.epub_extract_path,
+            css_files=css_files,
+            content_files=content_files
+        )
+        epubconv.epub_compress()
+        epubconv.clean()
