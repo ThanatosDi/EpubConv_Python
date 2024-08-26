@@ -4,12 +4,13 @@ import shutil
 import sys
 import zipfile
 
-import chardet
 from loguru import logger
 
 from app.Modules.convert import Convert
 from app.Modules.opf import OPF
 from app.Modules.renamer import ReNamer
+from app.Modules.utils import file_encoding
+from app.Modules.writing_format import WritingFormat
 from app.Modules.zip import ZIP
 
 
@@ -49,12 +50,6 @@ class EPUBConv():
         opf_file = OPF(opf_absolute_path+'.new')
         opf_file.language()  # 語言標籤轉換
 
-    def file_encoding(self, file):
-        with open(file, 'rb') as file:
-            detect = chardet.detect(file.read())
-        logger.debug(detect)
-        return detect['encoding']
-
     def content_convert(self, content_absolute_paths: list) -> None:
         """內容檔案轉換
 
@@ -63,7 +58,7 @@ class EPUBConv():
         """
         chapters = []
         for content_absolute_path in content_absolute_paths:
-            encoding = self.file_encoding(content_absolute_path)
+            encoding = file_encoding(content_absolute_path)
             with open(content_absolute_path, 'r', encoding=encoding) as file:
                 content = file.read()
             chapter = {
@@ -84,6 +79,32 @@ class EPUBConv():
         """
         for file in files:
             ReNamer(file).rename()
+
+    def writing_format(
+        self,
+        opf_path: str,
+        epub_extract_path: str,
+        css_files: str,
+        content_files: str,
+    ) -> None:
+        """
+        設定電子書檔案書寫格式的函數。
+
+        Args:
+            opf_path (str): OPF 檔案的路徑。
+            epub_extract_path (str): EPUB 解壓縮的路徑。
+            css_files (str): CSS 檔案的路徑。
+            content_files (str): 內容檔案的路徑。
+
+        Returns:
+            None
+        """
+        WritingFormat().format(
+            opf_path,
+            epub_extract_path,
+            css_files,
+            content_files,
+        )
 
     def clean(self) -> None:
         """ 清除解壓縮後的檔案 """
