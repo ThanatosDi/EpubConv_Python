@@ -1,7 +1,10 @@
 import os
+import sys
 from typing import Union, get_type_hints
 
 from dotenv import load_dotenv
+
+os.chdir(os.path.dirname(sys.argv[0]))
 
 load_dotenv("config.ini")
 
@@ -12,7 +15,6 @@ class AppConfigError(Exception):
 
 def _parse_bool(val: Union[str, bool]) -> bool:  # pylint: disable=E1136
     return val if isinstance(val, bool) else val.lower() in ['true', 'yes', '1']
-    # return val if type(val) == bool else val.lower() in ['true', 'yes', '1']
 
 # AppConfig class with required fields, default values, type checking, and typecasting for int and bool values
 
@@ -27,6 +29,7 @@ class AppConfig:
     ASYNC_LIMIT_PER_HOST: int = 10
     FILE_CHECK: bool = False
     ENABLE_PAUSE: bool = False
+    ADD_SUFFIX: bool = True
 
     """
     Map environment variables to class fields according to these rules:
