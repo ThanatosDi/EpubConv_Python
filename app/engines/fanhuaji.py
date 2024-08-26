@@ -59,13 +59,13 @@ class FanhuajiEngine(Engine):
         if (chapters := payload.get('chapters', None)) != None:
             for index, chapter in enumerate(chapters):
                 chapter_payload = {
-                    'text': chapter['content'],
+                    'text': chapter['content'], # type: ignore
                     'converter': payload['converter'],
                     'jpTextConversionStrategy': 'protect',
                 }
                 with requests.get(API+endpoint, data=chapter_payload) as response:
                     if response.status_code == 200:
-                        chapters[index]['content'] = (
+                        chapters[index]['content'] = ( # type: ignore
                             response.json()['data']['text'])
             return chapters
 
@@ -242,7 +242,7 @@ class FanhuajiEngine(Engine):
         if error_keys:
             raise FanhuajiInvalidKey(f"Invalid key: {', '.join(error_keys)}")
         chapters = kwargs.get('chapters', None)
-        chapter_list = [chapter['path'] for chapter in chapters]
+        chapter_list = [chapter['path'] for chapter in chapters] # type: ignore
         converter = self.__format_converter(kwargs.get('converter', None))
         # 限制異步請求的速度
         if Config.ASYNC_LIMIT_PER_HOST >= 6:
@@ -255,7 +255,7 @@ class FanhuajiEngine(Engine):
         tasks = []
         for chapter in chapters:
             payload = {
-                'text': chapter['content'],
+                'text': chapter['content'], # type: ignore
                 'converter': converter,
             }
             tasks.append(self.__async_request(session, payload))
