@@ -8,7 +8,6 @@ from loguru import logger
 from app import __VERSION__
 from app.Engines.engineABC import Engine
 from app.Enums.ConverterEnum import ConverterEnum
-from config.config import Config
 
 API = 'https://api.zhconvert.org'
 endpoint = '/convert'
@@ -59,13 +58,13 @@ class FanhuajiEngine(Engine):
         if (chapters := payload.get('chapters', None)) != None:
             for index, chapter in enumerate(chapters):
                 chapter_payload = {
-                    'text': chapter['content'], # type: ignore
+                    'text': chapter['content'],  # type: ignore
                     'converter': payload['converter'],
                     'jpTextConversionStrategy': 'protect',
                 }
                 with requests.get(API+endpoint, data=chapter_payload) as response:
                     if response.status_code == 200:
-                        chapters[index]['content'] = ( # type: ignore
+                        chapters[index]['content'] = (  # type: ignore
                             response.json()['data']['text'])
             return chapters
 
@@ -224,6 +223,8 @@ class FanhuajiEngine(Engine):
             userProtectReplace : 保護字詞不被繁化姬修改。
                                  格式為 "保護1\\n保護2\\n..." 。
                                  保護1 、 保護2 等字詞將不會被繁化姬修改。
+            aiohttp_tcp_limit : 異步請求的最大連線數。
+            aiohttp_tcp_limit_per_host : 異步請求的每個主機的最大連線數。
         """
         ALLOW_KEYS = [
             'text',
@@ -237,25 +238,31 @@ class FanhuajiEngine(Engine):
             'userPostReplace',
             'userPreReplace',
             'userProtectReplace',
+            'aiohttp_tcp_limit',
+            'aiohttp_tcp_limit_per_host',
         ]
         error_keys = [key for key in kwargs.keys() if key not in ALLOW_KEYS]
         if error_keys:
             raise FanhuajiInvalidKey(f"Invalid key: {', '.join(error_keys)}")
         chapters = kwargs.get('chapters', None)
-        chapter_list = [chapter['path'] for chapter in chapters] # type: ignore
+        chapter_list = [chapter['path']
+                        for chapter in chapters]  # type: ignore
         converter = self.__format_converter(kwargs.get('converter', None))
+        aiohttp_tcp_limit = kwargs.get('aiohttp_tcp_limit', 10)
+        aiohttp_tcp_limit_per_host = kwargs.get(
+            'aiohttp_tcp_limit_per_host', 5
+        )
         # 限制異步請求的速度
-        if Config.ASYNC_LIMIT_PER_HOST >= 6:
-            logger.warning(
-                'ASYNC_LIMIT_PER_HOST 不得大於 6，限制異步請求的速度，一同維護繁化姬的正常運作！')
-            Config.ASYNC_LIMIT_PER_HOST = 5
+        if aiohttp_tcp_limit_per_host >= 6:
+            aiohttp_tcp_limit_per_host = 5
+            logger.warning('limit_per_host 限制最大為 6，自動調整為 5，維護繁化姬的正常運作')
         connector = aiohttp.TCPConnector(
-            limit=Config.ASYNC_LIMIT, limit_per_host=Config.ASYNC_LIMIT_PER_HOST, force_close=True)
+            limit=aiohttp_tcp_limit, limit_per_host=aiohttp_tcp_limit_per_host, force_close=True)
         session = aiohttp.ClientSession(connector=connector)
         tasks = []
         for chapter in chapters:
             payload = {
-                'text': chapter['content'], # type: ignore
+                'text': chapter['content'],  # type: ignore
                 'converter': converter,
             }
             tasks.append(self.__async_request(session, payload))
