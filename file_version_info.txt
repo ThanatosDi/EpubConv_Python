@@ -37,7 +37,7 @@ VSVersionInfo(
         StringStruct(u'OriginalFilename', u'Epubconv.Exe'),
         StringStruct(u'ProductName', u'Epubconv'),
         StringStruct(u'ProductVersion', u'3.0.0')])
-      ]), 
+      ]),
     VarFileInfo([VarStruct(u'Translation', [1033, 1200])])
   ]
 )
