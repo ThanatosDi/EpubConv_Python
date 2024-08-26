@@ -31,6 +31,7 @@ class ZIP():
         save_as = os.path.join(dirname, new_filename)
         with zf.ZipFile(save_as, 'w', zf.zlib.DEFLATED) as z_f:
             for file in file_list:
+                logger.debug(file)
                 arc_name = file[len(f'{epub_absolute_path}_files'):]
                 z_f.write(file, arc_name)
 
