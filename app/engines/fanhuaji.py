@@ -3,10 +3,12 @@ from typing import Union
 
 import aiohttp
 import requests
+from loguru import logger
 
 from app import __VERSION__
 from app.Engines.engineABC import Engine
 from app.Enums.ConverterEnum import ConverterEnum
+from config.config import Config
 
 API = 'https://api.zhconvert.org'
 endpoint = '/convert'
@@ -243,8 +245,12 @@ class FanhuajiEngine(Engine):
         chapter_list = [chapter['path'] for chapter in chapters]
         converter = self.__format_converter(kwargs.get('converter', None))
         # 限制異步請求的速度
+        if Config.ASYNC_LIMIT_PER_HOST >= 6:
+            logger.warning(
+                'ASYNC_LIMIT_PER_HOST 不得大於 6，限制異步請求的速度，一同維護繁化姬的正常運作！')
+            Config.ASYNC_LIMIT_PER_HOST = 5
         connector = aiohttp.TCPConnector(
-            limit=10, limit_per_host=5, force_close=True)
+            limit=Config.ASYNC_LIMIT, limit_per_host=Config.ASYNC_LIMIT_PER_HOST, force_close=True)
         session = aiohttp.ClientSession(connector=connector)
         tasks = []
         for chapter in chapters:
