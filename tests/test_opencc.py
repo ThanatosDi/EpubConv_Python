@@ -1,4 +1,4 @@
-from app.engines.opencc import OpenCCEngine
+from app.Engines.opencc import OpenCCEngine
 
 
 class TestOpenCC():
@@ -7,17 +7,50 @@ class TestOpenCC():
         cls.opencc = OpenCCEngine()
 
     def test_opencc_convert_s2t(self):
-        text = self.opencc.convert('s2t', '使用 Python 撰写，epub 档案繁简横直互转')
-        assert text == '使用 Python 撰寫，epub 檔案繁簡橫直互轉'
+        chapters = [
+            {'path': 'test_opencc_convert_s2t.html',
+             'content': '使用 Python 撰写，epub 档案繁简横直互转'},
+        ]
+
+        ans = [
+            {'path': 'test_opencc_convert_s2t.html',
+             'content': '使用 Python 撰寫，epub 檔案繁簡橫直互轉'},
+        ]
+        text = self.opencc.convert('s2t', chapters)
+        assert text == ans
 
     def test_opencc_convert_t2s(self):
-        text = self.opencc.convert('t2s', '使用 Python 撰寫，epub 檔案繁簡橫直互轉')
-        assert text == '使用 Python 撰写，epub 档案繁简横直互转'
+        chapters = [
+            {'path': 'test_opencc_convert_t2s.html',
+             'content': '使用 Python 撰寫，epub 檔案繁簡橫直互轉'},
+        ]
+        ans = [
+            {'path': 'test_opencc_convert_t2s.html',
+             'content': '使用 Python 撰写，epub 档案繁简横直互转'},
+        ]
+        text = self.opencc.convert('t2s', chapters)
+        assert text == ans
 
     def test_opencc_convert_s2twp(self):
-        text = self.opencc.convert('s2twp', '内存')
-        assert text == '記憶體'
+        chapters = [
+            {'path': 'test_opencc_convert_s2twp.html',
+             'content': '内存'},
+        ]
+        ans = [
+            {'path': 'test_opencc_convert_s2twp.html',
+             'content': '記憶體'},
+        ]
+        text = self.opencc.convert('s2twp', chapters)
+        assert text == ans
 
     def test_opencc_convert_tw2sp(self):
-        text = self.opencc.convert('tw2sp', '記憶體')
-        assert text == '内存'
+        chapters = [
+            {'path': 'test_opencc_convert_tw2sp.html',
+             'content': '記憶體'},
+        ]
+        ans = [
+            {'path': 'test_opencc_convert_tw2sp.html',
+             'content': '内存'},
+        ]
+        text = self.opencc.convert('tw2sp', chapters)
+        assert text == ans
