@@ -26,7 +26,12 @@ pytest = "^7.2.0"
 autopep8 = "^2.0.1"
 pytest-asyncio = "^0.21.0"
 pyinstaller = "^6.6.0"
+poethepoet = "^0.27.0"
+pytest-mock = "^3.14.0"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poe.tasks]
+build = "pyinstaller ./main.spec --clean"
