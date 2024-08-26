@@ -49,6 +49,16 @@ class WritingFormat():
         epub_extract_path: str,
         content_files: list,
     ):
+        """
+        將 CSS 檔案插入 EPUB 檔案中。
+
+        Args:
+            epub_extract_path (str): EPUB 檔案的路徑。
+            content_files (list): EPUB 檔案中的內容檔案清單。
+
+        Returns:
+            None
+        """
         element = BeautifulSoup().new_tag('link')
         element.attrs = {
             'rel': 'stylesheet',
@@ -75,6 +85,15 @@ class WritingFormat():
         self,
         opf_path: str,
     ) -> None:
+        """
+        將自定義 CSS 檔案插入 OPF 檔案中。
+
+        Args:
+            opf_path (str): OPF 檔案的路徑。
+
+        Returns:
+            None
+        """
         soup = BeautifulSoup(
             open(opf_path, encoding=file_encoding(opf_path)), 'xml')
         item = soup.new_tag('item')
@@ -258,6 +277,16 @@ class StyleFile():
         css_files: list,
         vertical_styles: dict
     ):
+        """
+        刪除指定CSS文件中的垂直樣式。
+
+        Args:
+            css_files (list): CSS文件列表。
+            vertical_styles (dict): 垂直樣式的鍵值對。
+
+        Returns:
+            None
+        """
         rule_list: cssutils.css.CSSRuleList
         rule: cssutils.css.CSSStyleRule
         parser = cssutils.CSSParser()
@@ -281,6 +310,16 @@ class StyleFile():
         css_files: list,
         vertical_styles: dict,
     ):
+        """
+        新增指定CSS文件中的垂直樣式。
+
+        Args:
+            css_files (list): CSS文件列表。
+            vertical_styles (dict): 垂直樣式的鍵值對。
+
+        Returns:
+            None
+        """
         rule_list: cssutils.css.CSSRuleList
         rule: cssutils.css.CSSStyleRule
         parser = cssutils.CSSParser()

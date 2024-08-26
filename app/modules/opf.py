@@ -9,6 +9,15 @@ class OPF():
         self.opf_absolute_path = opf_absolute_path
 
     def language(self) -> None:
+        """
+        設定 OPF 檔案中的語言代碼。
+
+        根據 Config 中的 CONVERTER 設定，從 MAPPING 中找到對應的語言代碼，
+        並將其寫入 OPF 檔案中。
+
+        Returns:
+            None
+        """
         MAPPING = {
             'zh-Hant-TW': ['s2t', 's2tw', 's2twp'],
             'zh-Hans-CN': ['t2s', 'tw2s', 'tw2sp'],
