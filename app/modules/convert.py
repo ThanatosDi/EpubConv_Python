@@ -46,6 +46,10 @@ class Convert():
         if Config.ENGINE == EngineEnum.fanhuaji.value:
             return fanhuaji.convert(**params)
         if Config.ENGINE == EngineEnum.fanhuaji_async.value:
+            params.update({
+                'aiohttp_tcp_limit': Config.ASYNC_LIMIT,
+                'aiohttp_tcp_limit_per_host': Config.ASYNC_LIMIT_PER_HOST
+            })
             asyncio.set_event_loop_policy(
                 asyncio.WindowsSelectorEventLoopPolicy())
             return asyncio.run(fanhuaji.async_convert(**params))
