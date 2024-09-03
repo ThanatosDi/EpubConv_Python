@@ -20,8 +20,8 @@ def _parse_bool(val: Union[str, bool]) -> bool:  # pylint: disable=E1136
 
 
 class AppConfig:
-    ENGINE: str
-    CONVERTER: str
+    ENGINE: str = 'opencc'
+    CONVERTER: str = 's2t'
     FORMAT: str = 'horizontal'
     LOGLEVEL: str = 'INFO'
     STDLEVEL: str = 'INFO'
