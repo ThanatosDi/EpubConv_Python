@@ -105,5 +105,11 @@ venv.bak/
 .vscode/settings.json
 .modules/*
 
+# custom
 *.epub
 *.xhtml
+modules.bak/
+test.py
+OpenCC/
+storages/logs/*
+!.gitkeep

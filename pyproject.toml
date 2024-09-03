@@ -1,0 +1,37 @@
+[tool.poetry]
+name = "epubconv-python"
+version = "3.0.0"
+description = "Use python convert epub file from Simplified Chinese to Traditional Chinese on windows"
+authors = ["ThanatosDi <yykkold55tw@gmail.com>"]
+license = "Apache-2.0 license"
+readme = "README.md"
+packages = [{include = "epubconv_python"}]
+package-mode = false
+
+[tool.poetry.dependencies]
+python = ">=3.9,<3.13"
+aiohttp = "^3.8.3"
+cssutils = "^2.6.0"
+requests = "^2.28.1"
+python-dotenv = "^0.21.0"
+bs4 = "^0.0.1"
+lxml = "^4.9.1"
+loguru = "^0.7.2"
+opencc = "^1.1.7"
+chardet = "^5.2.0"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.2.0"
+autopep8 = "^2.0.1"
+pytest-asyncio = "^0.21.0"
+pyinstaller = "^6.6.0"
+poethepoet = "^0.27.0"
+pytest-mock = "^3.14.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poe.tasks]
+build = "pyinstaller ./main.spec --clean"
