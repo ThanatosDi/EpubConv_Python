@@ -1,5 +1,6 @@
 import logging
 import os
+import pathlib
 import zipfile as zf
 
 from loguru import logger
@@ -29,6 +30,9 @@ class ZIP():
                 file_list.append(os.path.join(root, name))
         new_filename = ZIP.convert_filename(epub_absolute_path)
         save_as = os.path.join(dirname, new_filename)
+        if Config.ADD_SUFFIX:
+            filename_with_suffix = f"{pathlib.Path(new_filename).stem}_{Config.CONVERTER}.epub"
+            save_as = pathlib.Path(dirname).joinpath(filename_with_suffix)
         with zf.ZipFile(save_as, 'w', zf.zlib.DEFLATED) as z_f:
             for file in file_list:
                 logger.debug(file)
