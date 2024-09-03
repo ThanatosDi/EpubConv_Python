@@ -1,3 +1,4 @@
+import os
 import sys
 
 from loguru import logger
@@ -52,3 +53,5 @@ if __name__ == '__main__':
         )
         epubconv.epub_compress()
         epubconv.clean()
+    if Config.ENABLE_PAUSE:
+        os.system('pause')
