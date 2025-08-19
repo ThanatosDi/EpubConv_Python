@@ -12,7 +12,7 @@ package-mode = false
 python = ">=3.9,<3.13"
 aiohttp = "^3.12.14"
 cssutils = "^2.6.0"
-requests = "^2.28.1"
+requests = "^2.32.4"
 python-dotenv = "^0.21.0"
 bs4 = "^0.0.1"
 lxml = "^4.9.1"
