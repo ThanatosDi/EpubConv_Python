@@ -1,7 +1,7 @@
 import asyncio
 
-from app.Engines.fanhuaji import FanhuajiEngine
-from app.Engines.opencc import OpenCCEngine
+from app.engines.fanhuaji import FanhuajiEngine
+from app.engines.opencc import OpenCCEngine
 from app.Enums.EngineEnum import EngineEnum
 from config.config import Config
 
