@@ -1,10 +1,12 @@
 import os
+if os.name != 'nt':
+    import tty, termios
 import sys
 
 from loguru import logger
 
 from app import __VERSION__
-from app.Modules.epubconv import EPUBConv
+from app.modules.epubconv import EPUBConv
 from config.config import Config
 
 logger.configure(
@@ -54,4 +56,19 @@ if __name__ == '__main__':
         epubconv.epub_compress()
         epubconv.clean()
     if Config.ENABLE_PAUSE:
-        os.system('pause')
+        if os.name == 'nt':
+            os.system('pause')
+        else:
+            stdin = sys.stdin
+            stdout = sys.stdout
+            fd = stdin.fileno()
+            old_settings = termios.tcgetattr(fd)
+            try:
+                tty.setraw(fd)
+                stdout.write('按任意鍵退出 ...')
+                stdout.flush()
+                stdin.read(1)
+            finally:
+                termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+            stdout.write('\n')
+

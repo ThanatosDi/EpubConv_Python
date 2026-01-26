@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 from loguru import logger
 
 from app.Enums.FormatEnum import FormatEnum
-from app.Modules.utils import dict_to_css_text, file_encoding
+from app.modules.utils import dict_to_css_text, file_encoding
 from config.config import Config
 
 cssutils.log.setLevel(logging.CRITICAL)
