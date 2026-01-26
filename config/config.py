@@ -2,12 +2,25 @@ import os
 import sys
 from typing import Union, get_type_hints
 
-from dotenv import load_dotenv
+import dotenv
 
-os.chdir(os.path.dirname(sys.argv[0]))
+basedir = os.path.dirname(sys.argv[0])
+# when run via python main.py xxx
+#  basedir is "", and at which time, no need to chdir
+if basedir != "":
+    os.chdir(basedir)
 
-load_dotenv("config.ini")
-
+_path = "config.ini"
+if os.name == 'nt':
+    dotenv.load_dotenv(_path)
+else:
+    d = dotenv.dotenv_values(_path)
+    _ENV = os.environ
+    for k, v in d.items():
+        if v is not None:
+            _ENV[k.upper()] = v
+    del d, _ENV
+del _path
 
 class AppConfigError(Exception):
     pass
