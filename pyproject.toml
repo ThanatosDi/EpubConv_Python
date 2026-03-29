@@ -17,7 +17,7 @@ python-dotenv = "^0.21.0"
 bs4 = "^0.0.1"
 lxml = "^4.9.1"
 loguru = "^0.7.2"
-opencc = "^1.1.7"
+opencc = "^1.2.0"
 chardet = "^5.2.0"
 
 
