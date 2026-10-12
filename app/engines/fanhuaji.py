@@ -6,8 +6,8 @@ import requests
 from loguru import logger
 
 from app import __VERSION__
-from app.Engines.engineABC import Engine
-from app.Enums.ConverterEnum import ConverterEnum
+from app.engines.engine_abc import Engine
+from app.enums.converter_enum import ConverterEnum
 
 API = 'https://api.zhconvert.org'
 endpoint = '/convert'

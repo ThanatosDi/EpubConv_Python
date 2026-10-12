@@ -4,7 +4,7 @@ import sys
 from loguru import logger
 
 from app import __VERSION__
-from app.Modules.epubconv import EPUBConv
+from app.modules.epubconv import EPUBConv
 from config.config import Config
 
 logger.configure(
