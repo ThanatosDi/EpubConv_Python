@@ -6,8 +6,8 @@ import requests
 from loguru import logger
 
 from app import __VERSION__
-from app.Engines.engineABC import Engine
-from app.Enums.ConverterEnum import ConverterEnum
+from app.engines.engine_abc import Engine
+from app.enums.converter_enum import ConverterEnum
 
 API = 'https://api.zhconvert.org'
 endpoint = '/convert'
@@ -47,7 +47,7 @@ class FanhuajiEngine(Engine):
             dict | None: _description_
         """
         if payload.get('text', None) != None:
-            with requests.get(
+            with requests.post(
                 API+endpoint,
                 data=payload,
                 headers={'User-Agent': f'EpubConv_Python/{__VERSION__}'}
@@ -62,11 +62,35 @@ class FanhuajiEngine(Engine):
                     'converter': payload['converter'],
                     'jpTextConversionStrategy': 'protect',
                 }
-                with requests.get(API+endpoint, data=chapter_payload) as response:
-                    if response.status_code == 200:
-                        chapters[index]['content'] = (  # type: ignore
-                            response.json()['data']['text'])
+                with requests.post(
+                    API+endpoint,
+                    data=chapter_payload,
+                    headers={'User-Agent': f'EpubConv_Python/{__VERSION__}'}
+                ) as response:
+                    response.raise_for_status()
+                    chapters[index]['content'] = (  # type: ignore
+                        self.__extract_text(response.json()))
             return chapters
+
+    def __extract_text(self, result: dict) -> str:
+        """從繁化姬 API 回應取出轉換後文字
+
+        繁化姬發生錯誤時 HTTP 狀態碼仍為 200，需以 code 判斷，
+        此時 data 為空陣列，直接取 ['data']['text'] 會引發 TypeError
+
+        Args:
+            result (dict): 繁化姬 API 回應
+
+        Raises:
+            FanhuajiAPIError: code 不為 0 時丟出例外
+
+        Returns:
+            str: 轉換後文字
+        """
+        if result.get('code') != 0:
+            raise FanhuajiAPIError(
+                f"繁化姬 API 錯誤 (code={result.get('code')}): {result.get('msg')}")
+        return result['data']['text']
 
     async def __async_request(self, session: aiohttp.ClientSession, payload: dict) -> str:
         """透過繁化姬 API 執行異步處理轉換文字
@@ -93,15 +117,14 @@ class FanhuajiEngine(Engine):
                     'converter': payload['converter'],
                     'jpTextConversionStrategy': 'protect',
                 }
-                async with session.get(
+                async with session.post(
                     f'{API+endpoint}',
                     data=data,
                     headers={'User-Agent': f'EpubConv_Python/{__VERSION__}'}
                 ) as response:
-                    if response.status != 200:
-                        raise response.raise_for_status()
+                    response.raise_for_status()
                     result = await response.json()
-                    content += result['data']['text']
+                    content += self.__extract_text(result)
             return content
 
     def __slice(self, content: str) -> list[str]:
@@ -258,18 +281,17 @@ class FanhuajiEngine(Engine):
             logger.warning('limit_per_host 限制最大為 6，自動調整為 5，維護繁化姬的正常運作')
         connector = aiohttp.TCPConnector(
             limit=aiohttp_tcp_limit, limit_per_host=aiohttp_tcp_limit_per_host, force_close=True)
-        session = aiohttp.ClientSession(connector=connector)
-        tasks = []
-        for chapter in chapters:
-            payload = {
-                'text': chapter['content'],  # type: ignore
-                'converter': converter,
-            }
-            tasks.append(self.__async_request(session, payload))
-        result = await asyncio.gather(*tasks)
+        async with aiohttp.ClientSession(connector=connector) as session:
+            tasks = []
+            for chapter in chapters:
+                payload = {
+                    'text': chapter['content'],  # type: ignore
+                    'converter': converter,
+                }
+                tasks.append(self.__async_request(session, payload))
+            result = await asyncio.gather(*tasks)
         merged_result = [{'path': path, 'content': content}
                          for path, content in zip(chapter_list, result)]
-        await session.close()
         return merged_result
 
 
@@ -286,4 +308,8 @@ class FanhuajiInvalidKey(Exception):
 
 
 class FanhuajiMissNecessaryKey(Exception):
+    pass
+
+
+class FanhuajiAPIError(Exception):
     pass
