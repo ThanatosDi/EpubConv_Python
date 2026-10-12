@@ -39,7 +39,9 @@ class AppConfig:
     """
 
     def __init__(self, env):
-        for field in self.__annotations__:
+        # Read annotations from the class: since Python 3.14 (PEP 649) instances no longer expose them
+        type_hints = get_type_hints(type(self))
+        for field in type_hints:
             if not field.isupper():
                 continue
 
@@ -50,7 +52,7 @@ class AppConfig:
 
             # Cast env var value to expected type and raise AppConfigError on failure
             try:
-                var_type = get_type_hints(AppConfig)[field]
+                var_type = type_hints[field]
                 if var_type == bool:
                     value = _parse_bool(env.get(field, default_value))
                 else:

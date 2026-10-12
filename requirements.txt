@@ -42,7 +42,7 @@ multidict==6.0.5
     # via
     #   aiohttp
     #   yarl
-opencc==1.2.0
+opencc==1.4.2
     # via epubconv-python
 propcache==0.2.0
     # via
@@ -54,7 +54,7 @@ requests==2.32.4
     # via epubconv-python
 soupsieve==2.8.4
     # via beautifulsoup4
-typing-extensions==4.14.1
+typing-extensions==4.14.1 ; python_full_version < '3.13'
     # via aiosignal
 urllib3==2.8.0
     # via requests

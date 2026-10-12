@@ -75,11 +75,11 @@ class WritingFormat():
                 css_abs.parent, pathlib.Path(content_file).parent)
             element.attrs['href'] = pathlib.Path(relpath).joinpath(
                 'epubconv_custom.css').as_posix()
-            soup = BeautifulSoup(
-                open(content_file, encoding=file_encoding(content_file)), 'html.parser')
+            with open(content_file, encoding=file_encoding(content_file)) as f:
+                soup = BeautifulSoup(f, 'html.parser')
             soup.head.title.insert_before(element)
-            open(content_file, 'w',
-                 encoding='utf-8').write(soup.prettify())
+            with open(content_file, 'w', encoding='utf-8') as f:
+                f.write(soup.prettify())
 
     def __insert_opf_item(
         self,
@@ -94,8 +94,8 @@ class WritingFormat():
         Returns:
             None
         """
-        soup = BeautifulSoup(
-            open(opf_path, encoding=file_encoding(opf_path)), 'xml')
+        with open(opf_path, encoding=file_encoding(opf_path)) as f:
+            soup = BeautifulSoup(f, 'xml')
         item = soup.new_tag('item')
         item.attrs = {
             'href': 'Styles/epubconv_custom.css',
@@ -103,7 +103,8 @@ class WritingFormat():
             'media-type': 'text/css',
         }
         soup.manifest.append(item)
-        open(opf_path, 'w', encoding='utf-8').write(soup.prettify())
+        with open(opf_path, 'w', encoding='utf-8') as f:
+            f.write(soup.prettify())
 
     def format(
         self,
@@ -180,12 +181,14 @@ class OpfFormat():
         修改後的 OPF 文件將會被寫回文件。
         """
         encoding = file_encoding(self.opf_path)
-        content = open(self.opf_path, 'r', encoding=encoding).read()
+        with open(self.opf_path, 'r', encoding=encoding) as f:
+            content = f.read()
         opf = BeautifulSoup(content, 'xml')
         spine = opf.select_one('spine')
         if spine.get('page-progression-direction', '') == '':
             spine['page-progression-direction'] = 'rtl'
-        open(self.opf_path, 'w', encoding=encoding).write(opf.prettify())
+        with open(self.opf_path, 'w', encoding=encoding) as f:
+            f.write(opf.prettify())
 
     def remove_vertical_attribute(self) -> None:
         """
@@ -194,12 +197,14 @@ class OpfFormat():
         這個函數讀取 OPF 文件，如果 'spine' 元素中存在 'page-progression-direction' 屬性並且其值為 'rtl' 或 'ltr'，則將其刪除。然後將修改後的 OPF 文件寫回文件。
         """
         encoding = file_encoding(self.opf_path)
-        content = open(self.opf_path, 'r', encoding=encoding).read()
+        with open(self.opf_path, 'r', encoding=encoding) as f:
+            content = f.read()
         opf = BeautifulSoup(content, 'xml')
         spine = opf.select_one('spine')
         if spine.get('page-progression-direction', '') in ['rtl', 'ltr']:
             del spine['page-progression-direction']
-        open(self.opf_path, 'w', encoding=encoding).write(opf.prettify())
+        with open(self.opf_path, 'w', encoding=encoding) as f:
+            f.write(opf.prettify())
 
     @ property
     def check_writing_format(
@@ -214,7 +219,8 @@ class OpfFormat():
             str: 書寫格式 (horizontal 橫書 或 vertical 直書)
         """
         encoding = file_encoding(self.opf_path)
-        content = open(self.opf_path, 'r', encoding=encoding).read()
+        with open(self.opf_path, 'r', encoding=encoding) as f:
+            content = f.read()
         opf = BeautifulSoup(content, 'xml')
         spine = opf.select_one('spine')
         if spine.get('page-progression-direction', '') in ['rtl', 'ltr']:
@@ -303,7 +309,8 @@ class StyleFile():
                     for name in vertical_styles.keys():
                         if name in rule.style.keys():
                             del rule.style[name]
-            open(css_file, 'wb').write(css.cssText)
+            with open(css_file, 'wb') as f:
+                f.write(css.cssText)
 
     def append_vertical_style(
         self,
@@ -335,4 +342,5 @@ class StyleFile():
                 if rule.selectorText == 'html':
                     for key, value in vertical_styles.items():
                         rule.style[key] = value
-            open(css_file, 'wb').write(css.cssText)
+            with open(css_file, 'wb') as f:
+                f.write(css.cssText)
