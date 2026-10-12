@@ -9,7 +9,7 @@ packages = [{include = "epubconv_python"}]
 package-mode = false
 
 [tool.poetry.dependencies]
-python = ">=3.9,<3.13"
+python = ">=3.10,<3.13"
 aiohttp = "^3.13.4"
 cssutils = "^2.6.0"
 requests = "^2.32.4"
