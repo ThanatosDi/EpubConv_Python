@@ -1,0 +1,109 @@
+name: Build and Release
+
+# 推送 v* tag 時打包並建立 Release；手動執行（workflow_dispatch）只打包並上傳 artifact，不建立 Release
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows:
+    name: Build Windows
+    runs-on: windows-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: '3.12'
+          enable-cache: true
+
+      # 版本號寫死在三個地方，tag 建立時必須全部一致，避免 exe 顯示錯誤版本
+      - name: Check version
+        id: version
+        shell: bash
+        run: |
+          version=$(sed -nE "s/^__VERSION__ = '([^']+)'.*/\1/p" app/__init__.py)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "app/__init__.py: $version"
+          if [[ "$GITHUB_REF_TYPE" != "tag" ]]; then
+            exit 0
+          fi
+          tag="${GITHUB_REF_NAME#v}"
+          fail=0
+          if [[ "$version" != "$tag" ]]; then
+            echo "::error file=app/__init__.py::__VERSION__ ($version) 與 tag ($GITHUB_REF_NAME) 不一致"
+            fail=1
+          fi
+          if ! grep -qE "^version = \"$tag\"" pyproject.toml; then
+            echo "::error file=pyproject.toml::version 與 tag ($GITHUB_REF_NAME) 不一致"
+            fail=1
+          fi
+          if ! grep -q "u'FileVersion', u'$tag'" file_version_info.txt || ! grep -q "u'ProductVersion', u'$tag'" file_version_info.txt; then
+            echo "::error file=file_version_info.txt::FileVersion / ProductVersion 與 tag ($GITHUB_REF_NAME) 不一致"
+            fail=1
+          fi
+          exit $fail
+
+      - name: Install dependencies
+        run: uv sync --locked
+
+      - name: Run tests
+        run: uv run pytest
+
+      - name: Build
+        run: uv run pyinstaller ./main.spec --clean --noconfirm
+
+      # 與 v3.0.0 相同：zip 根目錄只有 EpubConv.exe 與 config.ini
+      - name: Package
+        shell: pwsh
+        run: |
+          Compress-Archive -Path dist/EpubConv.exe, config.ini -DestinationPath "EpubConv.ver${{ steps.version.outputs.version }}.zip"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: EpubConv-windows
+          path: EpubConv.ver${{ steps.version.outputs.version }}.zip
+          if-no-files-found: error
+
+  release:
+    name: Release
+    needs: build-windows
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: EpubConv-windows
+          path: release
+
+      # tag 含 "-"（例如 v3.1.0-rc1）時標記為 pre-release；Release 已存在時改為覆蓋上傳檔案
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" release/*.zip --repo "$GITHUB_REPOSITORY" --clobber
+          else
+            prerelease=""
+            if [[ "$GITHUB_REF_NAME" == *-* ]]; then
+              prerelease="--prerelease"
+            fi
+            gh release create "$GITHUB_REF_NAME" release/*.zip \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "$GITHUB_REF_NAME" \
+              --generate-notes \
+              $prerelease
+          fi
