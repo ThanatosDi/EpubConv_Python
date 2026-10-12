@@ -18,10 +18,10 @@ jobs:
       version: ${{ steps.version.outputs.version }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v10.3.0
         with:
           python-version: '3.12'
           enable-cache: true
@@ -69,7 +69,7 @@ jobs:
           Compress-Archive -Path dist/EpubConv.exe, config.ini -DestinationPath "EpubConv.ver${{ steps.version.outputs.version }}.zip"
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: EpubConv-windows
           path: EpubConv.ver${{ steps.version.outputs.version }}.zip
@@ -84,7 +84,7 @@ jobs:
       contents: write
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: EpubConv-windows
           path: release
