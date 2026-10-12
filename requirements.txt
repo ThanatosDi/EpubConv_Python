@@ -2,7 +2,7 @@
 #    uv export --locked --no-dev --no-hashes --format requirements-txt -o requirements.txt
 aiohappyeyeballs==2.6.1
     # via aiohttp
-aiohttp==3.13.4
+aiohttp==3.14.3
     # via epubconv-python
 aiosignal==1.4.0
     # via aiohttp
