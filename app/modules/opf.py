@@ -27,7 +27,9 @@ class OPF():
         for __language, __converter in MAPPING.items():
             if Config.CONVERTER in __converter:
                 language = __language
-        content = open(self.opf_absolute_path, encoding='utf-8').read()
+        with open(self.opf_absolute_path, encoding='utf-8') as f:
+            content = f.read()
         content = re.sub(
             regex, f'<dc:language>{language}</dc:language>', content)
-        open(self.opf_absolute_path, 'w', encoding='utf-8').write(content)
+        with open(self.opf_absolute_path, 'w', encoding='utf-8') as f:
+            f.write(content)
