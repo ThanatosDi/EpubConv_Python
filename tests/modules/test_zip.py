@@ -41,7 +41,6 @@ class TestZIP():
         source = '简体书名.epub' if converter.startswith('s') else '簡體書名.epub'
         assert ZIP.convert_filename(str(tmp_path / source)) == expected
 
-    @pytest.mark.xfail(strict=True, reason='已知問題：converter 不在 FilenameConverter 時，退回 s2t 的處理會引發 AttributeError')
     def test_convert_filename_unknown_converter(self, tmp_path, config):
         config(converter='unknown')
         assert ZIP.convert_filename(str(tmp_path / '简体书名.epub')) == '簡體書名.epub'

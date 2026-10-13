@@ -51,8 +51,10 @@ class TestConvert():
             aiohttp_tcp_limit_per_host=2,
         )
 
-    @pytest.mark.xfail(strict=True, reason='已知問題：docstring 說會丟出 ValueError，實際回傳 None')
     def test_unsupported_engine(self, engines, config):
+        opencc, fanhuaji = engines
         config(engine='google')
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match='google'):
             Convert.convert(CHAPTERS)
+        opencc.convert.assert_not_called()
+        fanhuaji.convert.assert_not_called()
