@@ -1,3 +1,5 @@
+import pytest
+
 from app.engines.opencc import OpenCCEngine
 
 
@@ -54,3 +56,30 @@ class TestOpenCC():
         ]
         text = self.opencc.convert('tw2sp', chapters)
         assert text == ans
+
+    def test_opencc_convert_multiple_chapters(self):
+        chapters = [
+            {'path': 'chapter1.html', 'content': '软件'},
+            {'path': 'chapter2.html', 'content': '内存'},
+        ]
+        ans = [
+            {'path': 'chapter1.html', 'content': '軟體'},
+            {'path': 'chapter2.html', 'content': '記憶體'},
+        ]
+        assert self.opencc.convert('s2twp', chapters) == ans
+
+    def test_opencc_convert_invalid_converter(self):
+        chapters = [{'path': 'chapter1.html', 'content': '软件'}]
+        with pytest.raises(ValueError, match='s2hk'):
+            self.opencc.convert('s2hk', chapters)
+
+    @pytest.mark.parametrize('converter, filename, ans', [
+        ('s2t', '简体书名.epub', '簡體書名.epub'),
+        ('t2s', '簡體書名.epub', '简体书名.epub'),
+    ])
+    def test_opencc_filename_convert(self, converter, filename, ans):
+        assert self.opencc.filename_convert(converter, filename) == ans
+
+    def test_opencc_filename_convert_invalid_converter(self):
+        with pytest.raises(ValueError, match='s2hk'):
+            self.opencc.filename_convert('s2hk', '简体书名.epub')
