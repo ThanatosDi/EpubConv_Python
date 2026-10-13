@@ -1,5 +1,7 @@
 import asyncio
 
+from loguru import logger
+
 from app.engines.fanhuaji import FanhuajiEngine
 from app.engines.opencc import OpenCCEngine
 from app.enums.engine_enum import EngineEnum
@@ -53,3 +55,5 @@ class Convert():
             asyncio.set_event_loop_policy(
                 asyncio.WindowsSelectorEventLoopPolicy())
             return asyncio.run(fanhuaji.async_convert(**params))
+        logger.error(f'{Config.ENGINE} 並非支援的轉換引擎')
+        raise ValueError(f'engine "{Config.ENGINE}" is not in EngineEnum')
