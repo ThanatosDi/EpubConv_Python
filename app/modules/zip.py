@@ -78,9 +78,7 @@ class ZIP():
             str: 轉換後的檔案名稱
         """
         converter: FilenameConverter = getattr(ConverterEnum.filename.value,
-                                               Config.CONVERTER, None)
-        if converter is None:
-            converter = 's2t'
+                                               Config.CONVERTER, FilenameConverter.s2t)
         # 僅取得檔案名稱不含路徑
         filename_with_extension = os.path.basename(epub_absolute_path)
         new_filename = opencc.filename_convert(
