@@ -1,6 +1,6 @@
 [project]
 name = "epubconv-python"
-version = "3.0.0"
+version = "3.1.0"
 description = "Use python convert epub file from Simplified Chinese to Traditional Chinese on windows"
 authors = [{ name = "ThanatosDi", email = "yykkold55tw@gmail.com" }]
 requires-python = ">=3.10,<3.15"
