@@ -14,7 +14,7 @@ beautifulsoup4==4.15.0
     # via bs4
 bs4==0.0.2
     # via epubconv-python
-certifi==2026.7.22
+certifi==2026.10.19
     # via requests
 chardet==7.6.0
     # via
