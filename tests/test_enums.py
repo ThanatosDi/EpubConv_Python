@@ -1,10 +1,10 @@
 import pytest
 
-from app.enums.converter_enum import (Converter, ConverterEnum,
+from epubconv.enums.converter_enum import (Converter, ConverterEnum,
                                       FanhuajiConverter, FilenameConverter,
                                       OpenccConverter)
-from app.enums.engine_enum import EngineEnum
-from app.enums.format_enum import FormatEnum
+from epubconv.enums.engine_enum import EngineEnum
+from epubconv.enums.format_enum import FormatEnum
 
 CONVERTERS = ['s2t', 's2tw', 's2twp', 't2s', 'tw2s', 'tw2sp']
 

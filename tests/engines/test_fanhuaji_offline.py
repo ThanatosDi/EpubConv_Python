@@ -3,8 +3,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from app.engines import fanhuaji as fanhuaji_module
-from app.engines.fanhuaji import (FanhuajiAPIError, FanhuajiEngine,
+from epubconv.engines import fanhuaji as fanhuaji_module
+from epubconv.engines.fanhuaji import (FanhuajiAPIError, FanhuajiEngine,
                                   FanhuajiInvalidKey, FanhuajiMissNecessaryKey)
 
 API_ERROR = {'code': 1, 'data': [], 'msg': 'Invalid converter.'}

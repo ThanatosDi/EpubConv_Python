@@ -1,8 +1,8 @@
 import opencc
 from loguru import logger
 
-from app.engines.engine_abc import Engine
-from app.enums.converter_enum import ConverterEnum
+from epubconv.engines.engine_abc import Engine
+from epubconv.enums.converter_enum import ConverterEnum
 
 
 class OpenCCEngine(Engine):

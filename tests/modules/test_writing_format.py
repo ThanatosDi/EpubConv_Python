@@ -2,7 +2,7 @@ import cssutils
 import pytest
 from bs4 import BeautifulSoup
 
-from app.modules.writing_format import OpfFormat, StyleFile, WritingFormat
+from epubconv.modules.writing_format import OpfFormat, StyleFile, WritingFormat
 from tests.conftest import VERTICAL_STYLES
 
 SPINE_OPF = '''<?xml version="1.0" encoding="utf-8"?>

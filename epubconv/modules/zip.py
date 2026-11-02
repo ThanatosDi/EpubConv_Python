@@ -5,9 +5,9 @@ import zipfile as zf
 
 from loguru import logger
 
-from app.engines.opencc import OpenCCEngine
-from app.enums.converter_enum import ConverterEnum, FilenameConverter
-from config.config import Config
+from epubconv.engines.opencc import OpenCCEngine
+from epubconv.enums.converter_enum import ConverterEnum, FilenameConverter
+from epubconv.config import Config
 
 opencc = OpenCCEngine()
 

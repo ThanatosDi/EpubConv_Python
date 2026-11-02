@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from app.modules.epubconv import EPUBConv
+from epubconv.modules.epubconv import EPUBConv
 from tests.conftest import VERTICAL_STYLES, EpubInspector
 
 VERTICAL_CSS = 'html { color: black; %s }\np { text-indent: 2em; }' % ' '.join(

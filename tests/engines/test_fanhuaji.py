@@ -3,8 +3,8 @@ import asyncio
 import aiohttp
 import pytest
 
-from app.engines.fanhuaji import FanhuajiEngine
-from app.enums.engine_enum import EngineEnum
+from epubconv.engines.fanhuaji import FanhuajiEngine
+from epubconv.enums.engine_enum import EngineEnum
 
 
 class TestFanhuaji():

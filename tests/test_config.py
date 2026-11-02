@@ -1,6 +1,6 @@
 import pytest
 
-from config.config import AppConfig, AppConfigError, _parse_bool
+from epubconv.config import AppConfig, AppConfigError, _parse_bool
 
 
 class TestParseBool():

@@ -1,6 +1,6 @@
 import pytest
 
-from app.modules.renamer import ReNamer
+from epubconv.modules.renamer import ReNamer
 
 
 class TestReNamer():

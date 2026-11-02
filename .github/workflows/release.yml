@@ -31,16 +31,16 @@ jobs:
         id: version
         shell: bash
         run: |
-          version=$(sed -nE "s/^__VERSION__ = '([^']+)'.*/\1/p" app/__init__.py)
+          version=$(sed -nE "s/^__VERSION__ = '([^']+)'.*/\1/p" epubconv/__init__.py)
           echo "version=$version" >> "$GITHUB_OUTPUT"
-          echo "app/__init__.py: $version"
+          echo "epubconv/__init__.py: $version"
           if [[ "$GITHUB_REF_TYPE" != "tag" ]]; then
             exit 0
           fi
           tag="${GITHUB_REF_NAME#v}"
           fail=0
           if [[ "$version" != "$tag" ]]; then
-            echo "::error file=app/__init__.py::__VERSION__ ($version) 與 tag ($GITHUB_REF_NAME) 不一致"
+            echo "::error file=epubconv/__init__.py::__VERSION__ ($version) 與 tag ($GITHUB_REF_NAME) 不一致"
             fail=1
           fi
           if ! grep -qE "^version = \"$tag\"" pyproject.toml; then

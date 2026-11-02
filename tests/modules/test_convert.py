@@ -2,8 +2,8 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from app.modules import convert as convert_module
-from app.modules.convert import Convert
+from epubconv.modules import convert as convert_module
+from epubconv.modules.convert import Convert
 
 CHAPTERS = [{'path': 'chapter1.xhtml', 'content': '简体'}]
 RESULT = [{'path': 'chapter1.xhtml', 'content': '簡體'}]

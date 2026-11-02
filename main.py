@@ -3,9 +3,9 @@ import sys
 
 from loguru import logger
 
-from app import __VERSION__
-from app.modules.epubconv import EPUBConv
-from config.config import Config
+from epubconv import __VERSION__
+from epubconv.modules.epubconv import EPUBConv
+from epubconv.config import Config
 
 logger.configure(
     handlers=[

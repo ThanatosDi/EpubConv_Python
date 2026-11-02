@@ -6,12 +6,12 @@ import zipfile
 
 from loguru import logger
 
-from app.modules.convert import Convert
-from app.modules.opf import OPF
-from app.modules.renamer import ReNamer
-from app.modules.utils import file_encoding
-from app.modules.writing_format import WritingFormat
-from app.modules.zip import ZIP
+from epubconv.modules.convert import Convert
+from epubconv.modules.opf import OPF
+from epubconv.modules.renamer import ReNamer
+from epubconv.modules.utils import file_encoding
+from epubconv.modules.writing_format import WritingFormat
+from epubconv.modules.zip import ZIP
 
 
 class EPUBConv():

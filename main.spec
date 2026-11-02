@@ -1,7 +1,7 @@
 # -*- mode: python ; coding: utf-8 -*-
 
 # 打包模式為單一執行檔（onefile）：dist/EpubConv.exe。
-# config.ini 不打包進 exe，需放在 EpubConv.exe 旁邊（config/config.py 會切換到 exe 所在目錄讀取）。
+# config.ini 不打包進 exe，需放在 EpubConv.exe 旁邊（epubconv/config.py 會切換到 exe 所在目錄讀取）。
 a = Analysis(
     ['main.py'],
     pathex=[],

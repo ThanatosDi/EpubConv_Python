@@ -2,10 +2,10 @@ import asyncio
 
 from loguru import logger
 
-from app.engines.fanhuaji import FanhuajiEngine
-from app.engines.opencc import OpenCCEngine
-from app.enums.engine_enum import EngineEnum
-from config.config import Config
+from epubconv.engines.fanhuaji import FanhuajiEngine
+from epubconv.engines.opencc import OpenCCEngine
+from epubconv.enums.engine_enum import EngineEnum
+from epubconv.config import Config
 
 opencc = OpenCCEngine()
 fanhuaji = FanhuajiEngine()

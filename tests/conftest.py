@@ -6,7 +6,7 @@ import cssutils
 import pytest
 from lxml import etree
 
-from config.config import Config
+from epubconv.config import Config
 
 VERTICAL_STYLES = {
     'writing-mode': 'vertical-rl',

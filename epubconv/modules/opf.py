@@ -1,7 +1,7 @@
 # Open Packaging Format
 import re
 
-from config.config import Config
+from epubconv.config import Config
 
 
 class OPF():
