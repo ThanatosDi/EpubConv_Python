@@ -25,9 +25,9 @@ class EPUBConv():
         """解壓縮 epub 檔案"""
         ZIP.extract(self.epub_abs_path)
 
-    def epub_compress(self) -> None:
-        """壓縮 epub 檔案"""
-        ZIP.compress(self.epub_abs_path)
+    def epub_compress(self) -> pathlib.Path:
+        """壓縮 epub 檔案，回傳輸出 epub 的路徑"""
+        return ZIP.compress(self.epub_abs_path)
 
     @property
     def epub_file(self):

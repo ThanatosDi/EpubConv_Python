@@ -203,6 +203,15 @@ def make_epub(tmp_path):
 
 
 @pytest.fixture
+def restore_config():
+    """測試結束後還原 Config 的所有欄位（用於會整批改寫 Config 的 load_config）"""
+    saved = dict(vars(Config))
+    yield Config
+    for key, value in saved.items():
+        setattr(Config, key, value)
+
+
+@pytest.fixture
 def config(monkeypatch):
     """修改 Config 的設定，測試結束後自動還原"""
     def _set(**kwargs):
