@@ -6,7 +6,7 @@ import cssutils
 import pytest
 from lxml import etree
 
-from config.config import Config
+from epubconv.config import Config
 
 VERTICAL_STYLES = {
     'writing-mode': 'vertical-rl',
@@ -200,6 +200,15 @@ def make_epub(tmp_path):
     def _make_epub(name: str = 'test.epub', **kwargs) -> Path:
         return build_epub(tmp_path / name, **kwargs)
     return _make_epub
+
+
+@pytest.fixture
+def restore_config():
+    """測試結束後還原 Config 的所有欄位（用於會整批改寫 Config 的 load_config）"""
+    saved = dict(vars(Config))
+    yield Config
+    for key, value in saved.items():
+        setattr(Config, key, value)
 
 
 @pytest.fixture

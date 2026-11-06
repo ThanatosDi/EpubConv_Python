@@ -1,6 +1,6 @@
 import pytest
 
-from app.engines.opencc import OpenCCEngine
+from epubconv.engines.opencc import OpenCCEngine
 
 
 class TestOpenCC():

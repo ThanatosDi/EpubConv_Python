@@ -3,7 +3,8 @@ from pathlib import Path
 
 import pytest
 
-from app.modules.epubconv import EPUBConv
+from epubconv import convert_epub
+from epubconv.modules.epubconv import EPUBConv
 from tests.conftest import VERTICAL_STYLES, EpubInspector
 
 VERTICAL_CSS = 'html { color: black; %s }\np { text-indent: 2em; }' % ' '.join(
@@ -12,22 +13,7 @@ VERTICAL_CSS = 'html { color: black; %s }\np { text-indent: 2em; }' % ' '.join(
 
 def run(epub: Path) -> None:
     """與 main.py 相同的轉換流程"""
-    epubconv = EPUBConv(str(epub))
-    epubconv.epub_extract()
-    content_files = epubconv.epub_file.content_files
-    css_files = epubconv.epub_file.css_files
-    opf_file = epubconv.epub_file.opf_file
-    epubconv.content_convert(content_files)
-    epubconv.opf_convert(opf_file)
-    epubconv.file_rename(content_files)
-    epubconv.writing_format(
-        opf_path=opf_file,
-        epub_extract_path=epubconv.epub_extract_path,
-        css_files=css_files,
-        content_files=content_files,
-    )
-    epubconv.epub_compress()
-    epubconv.clean()
+    convert_epub(epub)
 
 
 def convert(make_epub, config, *, converter='s2twp', format='horizontal', **kwargs) -> EpubInspector:

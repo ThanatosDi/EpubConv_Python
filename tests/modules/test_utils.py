@@ -2,7 +2,7 @@ import codecs
 
 import pytest
 
-from app.modules.utils import dict_to_css_text, file_encoding
+from epubconv.modules.utils import dict_to_css_text, file_encoding
 
 TEXT = '<?xml version="1.0"?><html><body><p>这是一本简体中文的小说，内容讲述了一个少年的冒险故事。</p></body></html>'
 

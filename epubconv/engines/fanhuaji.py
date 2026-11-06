@@ -5,9 +5,9 @@ import aiohttp
 import requests
 from loguru import logger
 
-from app import __VERSION__
-from app.engines.engine_abc import Engine
-from app.enums.converter_enum import ConverterEnum
+from epubconv import __VERSION__
+from epubconv.engines.engine_abc import Engine
+from epubconv.enums.converter_enum import ConverterEnum
 
 API = 'https://api.zhconvert.org'
 endpoint = '/convert'

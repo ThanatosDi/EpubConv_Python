@@ -1,6 +1,6 @@
 import pytest
 
-from app.modules.opf import OPF
+from epubconv.modules.opf import OPF
 
 OPF_CONTENT = '''<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://www.idpf.org/2007/opf" version="2.0">

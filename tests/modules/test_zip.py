@@ -2,7 +2,7 @@ import zipfile
 
 import pytest
 
-from app.modules.zip import ZIP
+from epubconv.modules.zip import ZIP
 
 
 class TestZIP():

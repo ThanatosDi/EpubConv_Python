@@ -5,9 +5,9 @@ import zipfile as zf
 
 from loguru import logger
 
-from app.engines.opencc import OpenCCEngine
-from app.enums.converter_enum import ConverterEnum, FilenameConverter
-from config.config import Config
+from epubconv.engines.opencc import OpenCCEngine
+from epubconv.enums.converter_enum import ConverterEnum, FilenameConverter
+from epubconv.config import Config
 
 opencc = OpenCCEngine()
 
@@ -17,11 +17,14 @@ class ZIP():
         ...
 
     @staticmethod
-    def compress(epub_absolute_path: str) -> None:
+    def compress(epub_absolute_path: str) -> pathlib.Path:
         """將轉換後的資料夾內容壓縮回 epub
 
         Args:
             filename (str): 原始檔案的絕對路徑名稱
+
+        Returns:
+            pathlib.Path: 輸出 epub 的路徑
         """
         dirname = os.path.dirname(epub_absolute_path)
         file_list = []
@@ -38,6 +41,7 @@ class ZIP():
                 logger.debug(file)
                 arc_name = file[len(f'{epub_absolute_path}_files'):]
                 z_f.write(file, arc_name)
+        return pathlib.Path(save_as)
 
     @staticmethod
     def extract(epub_absolute_path: str) -> None:

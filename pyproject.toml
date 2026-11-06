@@ -36,8 +36,17 @@ dev = [
     "pytest-mock>=3.16.0,<4",
 ]
 
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["epubconv"]
+
+[tool.hatch.build.targets.sdist]
+include = ["epubconv", "README.md", "LICENSE"]
+
 [tool.uv]
-package = false
 default-groups = "all"
 
 [tool.pytest.ini_options]
