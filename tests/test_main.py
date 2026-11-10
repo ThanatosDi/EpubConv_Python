@@ -51,7 +51,6 @@ class TestMain():
         assert (first.parent / '第一本_s2t.epub').exists()
         assert (second.parent / '第二本_s2t.epub').exists()
 
-    @pytest.mark.xfail(strict=True, reason='已知問題：以相對路徑執行 main.py 時，os.chdir("") 會引發 OSError')
     def test_relative_main_path(self, make_epub):
         epub = make_epub('book.epub')
         env = os.environ | {'ENGINE': 'opencc', 'ENABLE_PAUSE': 'false'}

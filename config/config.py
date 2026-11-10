@@ -4,7 +4,9 @@ from typing import Union, get_type_hints
 
 from dotenv import load_dotenv
 
-os.chdir(os.path.dirname(sys.argv[0]))
+script_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
+if script_dir:
+    os.chdir(script_dir)
 
 load_dotenv("config.ini")
 
